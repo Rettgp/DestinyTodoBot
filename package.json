@@ -1,0 +1,26 @@
+{
+    "name": "DestinyTodoBot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "bot.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "babel --presets es2015 -d lib/ src",
+        "start": "cd lib && node bot.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@keyv/mongo": "^1.1.0",
+        "body-parser": "^1.18.3",
+        "cheerio": "^1.0.0-rc.2",
+        "discord.js": "^11.4.2",
+        "express": "^4.16.4",
+        "keyv": "^3.1.0",
+        "puppeteer": "^1.14.0"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-es2015": "^6.24.1"
+    }
+}
