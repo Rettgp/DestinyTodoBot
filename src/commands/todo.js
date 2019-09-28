@@ -30,7 +30,7 @@ module.exports = {
             await keyv.set(server_id, todo_list.Serialize());
             result_message.embed.description = `${message.author.username} has added: ${todo_name}`
         }
-        else if (todo_list_json === 'undefined')
+        else if (todo_list_json === undefined)
         {
             result_message.embed.description = `No Todo list has been setup.`
         }
