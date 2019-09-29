@@ -1,9 +1,12 @@
 const Discord = require('discord.js');
 const fs = require("fs");
+import ReactionHandler from "./ReactionHandler"
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
+
+const reaction_handler = new ReactionHandler();
 
 // When the bot is connected and ready, log to console.
 bot.on('ready', () =>
@@ -51,10 +54,22 @@ bot.on('message', async (message) =>
     }
 });
 
+bot.on('messageReactionAdd', (messageReaction, user) => 
+{
+    if (user.bot)
+    {
+        reaction_handler.UpdateCounts(messageReaction, user);
+        return;
+    }
+
+    reaction_handler.Handle(messageReaction, user);
+});
+
 bot.on('error', err =>
 {
     console.warn(err);
 });
+
 
 // Command Handler
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
