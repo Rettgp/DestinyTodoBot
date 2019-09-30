@@ -24,6 +24,12 @@ module.exports = {
         {
             let todo_list = new TodoList();
             todo_list.Deserialize(todo_list_json);
+
+            if (todo_list.GetTodos().size < 1){
+                info_message.embed.description = `All Todo tasks have been completed.`
+                message.channel.send(info_message);
+            }
+
             for (let [key, value] of todo_list.GetTodos())
             {
                 const todo_message = {
