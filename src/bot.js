@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const fs = require("fs");
 import ReactionHandler from "./ReactionHandler"
+import Keyv from 'keyv';
+const keyv = new Keyv(process.env.PROD_MONGODB);
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();
@@ -37,7 +39,7 @@ bot.on('message', async (message) =>
     {
         try
         {
-            bot.commands.get(command).execute(message, args);
+            bot.commands.get(command).execute(message, args, keyv);
 
             // Adds the user to the set so that they can't talk for 2 seconds
             talkedRecently.add(message.author.id);
