@@ -14,9 +14,7 @@ module.exports = {
         };
 
         let todo_list_json = await keyv.get(server_id);
-
-        console.log('Server_ID: ' + server_id);
-
+        
         if (todo_list_json === undefined)
         {
             info_message.embed.description = `No Todo list has been setup.`
