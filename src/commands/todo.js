@@ -65,9 +65,9 @@ module.exports = {
                     // TODO (Garrett): Trailing comma
                     todo_message.embed.description = participant + ",";
                 }
-                message.channel.send(todo_message).then( message => {
-                    message.react("✅");
-                    message.react("❌");
+                message.channel.send(todo_message).then( async message => {
+                    await message.react("✅");
+                    await message.react("❌");
                 });
             }
         }

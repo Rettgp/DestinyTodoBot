@@ -8,25 +8,6 @@ export default class ReactionHandler
     {
     }
 
-    async UpdateCounts(reaction, user)
-    {
-        let server_id = reaction.message.guild.id;
-        let todo_list_json = await keyv.get(server_id);
-        if (todo_list_json === undefined)
-        {
-            return;
-        }
-        let todo_list = new TodoList();
-        todo_list.Deserialize(todo_list_json);
-        let todo_key = reaction.message.embeds[0].author.name;
-        let todo_entry = todo_list.GetTodos().get(todo_key);
-        console.log("TODO KEY: " + todo_key);
-
-        let message = reaction.message;
-
-        //TODO (Garrett): Edit the reaction counts
-    }
-
     async Handle(reaction, user)
     {
         let server_id = reaction.message.guild.id;
@@ -55,8 +36,6 @@ export default class ReactionHandler
                 this.Accept(todo_list, todo_key, user);
             }
         }
-
-        //TODO (Garrett): Update reaction counts
 
         console.log("WRITING: " + todo_list);
         await keyv.set(server_id, todo_list.Serialize());

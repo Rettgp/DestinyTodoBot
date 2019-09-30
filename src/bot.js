@@ -58,7 +58,10 @@ bot.on('messageReactionAdd', (messageReaction, user) =>
 {
     if (user.bot)
     {
-        reaction_handler.UpdateCounts(messageReaction, user);
+        // TODO (Garrett): Is there any way to get a correct 
+        // reading on reactions? We would need to be able
+        // to indirectly force another user's reaction
+        // which I dont think is possible
         return;
     }
 
