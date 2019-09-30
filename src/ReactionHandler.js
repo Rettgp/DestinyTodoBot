@@ -37,6 +37,10 @@ export default class ReactionHandler
             }
         }
 
+        if (todo_entry.Participants().length <= 0)
+        {
+            todo_list.GetTodos().delete(todo_key);
+        }
         console.log("WRITING: " + todo_list);
         await keyv.set(server_id, todo_list.Serialize());
     }
@@ -44,23 +48,24 @@ export default class ReactionHandler
     Accept(todo_list, todo_key, user)
     {
         let todo_entry = todo_list.GetTodos().get(todo_key);
-        if ( todo_entry !== undefined )
+        if ( todo_entry !== undefined && 
+            !todo_entry.Participants().includes(user.username) )
         {
             todo_entry.AddParticipant( user.username );
+            todo_list.AddTodoEntry(todo_key, todo_entry);
+            console.log("TODO LIST ADD: " + todo_list);
         }
-        todo_list.AddTodoEntry(todo_key, todo_entry);
-        console.log("TODO LIST ADD: " + todo_list);
     }
 
     Remove(todo_list, todo_key, user)
     {
         let todo_entry = todo_list.GetTodos().get(todo_key);
-        if ( todo_entry !== undefined )
+        if ( todo_entry !== undefined && 
+            todo_entry.Participants().includes(user.username) )
         {
             todo_entry.RemoveParticipant( user.username );
+            todo_list.AddTodoEntry(todo_key, todo_entry);
+            console.log("TODO LIST Remove: " + todo_list);
         }
-
-        todo_list.AddTodoEntry(todo_key, todo_entry);
-        console.log("TODO LIST Remove: " + todo_list);
     }
 }
