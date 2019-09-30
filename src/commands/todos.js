@@ -47,7 +47,7 @@ module.exports = {
                 for (let participant of value.Participants())
                 {
                     // TODO (Garrett): Trailing comma
-                    todo_message.embed.description = participant + ",";
+                    todo_message.embed.description += participant + ",";
                 }
                 message.channel.send(todo_message).then( async message => {
                     await message.react("✅");

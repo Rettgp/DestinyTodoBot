@@ -69,7 +69,7 @@ bot.on('messageReactionAdd', (messageReaction, user) =>
         return;
     }
 
-    reaction_handler.Handle(messageReaction, user);
+    reaction_handler.Handle(messageReaction, user, keyv);
 });
 
 bot.on('error', err =>

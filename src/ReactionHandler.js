@@ -1,14 +1,13 @@
-import Keyv from 'keyv';
 import TodoList from './TodoList'
-const keyv = new Keyv(process.env.PROD_MONGODB);
 
 export default class ReactionHandler
 {
-    constructor()
+    constructor(keyv)
     {
+        this.keyv = keyv;
     }
 
-    async Handle(reaction, user)
+    async Handle(reaction, user, keyv)
     {
         let server_id = reaction.message.guild.id;
         let todo_list_json = await keyv.get(server_id);
