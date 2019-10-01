@@ -21,6 +21,12 @@ export default class ReactionHandler
         let todo_entry = todo_list.GetTodos().get(todo_key);
         console.log("TODO KEY: " + todo_key);
 
+        if (!todo_list.TodoExists(todo_key))
+        {
+            console.log("This key doesn\'t exist!");
+            return;
+        }
+
         if (reaction.emoji.name === "❌")
         {
             if ( todo_entry !== undefined )
