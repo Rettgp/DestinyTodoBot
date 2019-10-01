@@ -87,4 +87,4 @@ for (const file of commandFiles)
     bot.commands.set(command.name, command);
 }
 
-bot.login(bot1_id);
+bot.login(bot2_id);

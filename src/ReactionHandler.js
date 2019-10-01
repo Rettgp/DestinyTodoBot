@@ -1,3 +1,5 @@
+
+import Discord from 'discord.js';
 import TodoList from './TodoList'
 
 export default class ReactionHandler
@@ -19,7 +21,6 @@ export default class ReactionHandler
         todo_list.Deserialize(todo_list_json);
         let todo_key = reaction.message.embeds[0].author.name;
         let todo_entry = todo_list.GetTodos().get(todo_key);
-        console.log("TODO KEY: " + todo_key);
 
         if (!todo_list.TodoExists(todo_key))
         {
@@ -42,11 +43,20 @@ export default class ReactionHandler
             }
         }
 
+        let new_embed = reaction.message.embeds[0];
+        new_embed.description = "";
+        for (let participant of todo_entry.Participants())
+        {
+            // TODO (Garrett): Trailing comma
+            new_embed.description += participant + ",";
+        }
+        reaction.message.edit(new Discord.RichEmbed(new_embed));
+
         if (todo_entry.Participants().length <= 0)
         {
             todo_list.GetTodos().delete(todo_key);
+            reaction.message.delete();
         }
-        console.log("WRITING: " + todo_list);
         await this.keyv.set(server_id, todo_list.Serialize());
     }
 
@@ -58,7 +68,6 @@ export default class ReactionHandler
         {
             todo_entry.AddParticipant( user.username );
             todo_list.AddTodoEntry(todo_key, todo_entry);
-            console.log("TODO LIST ADD: " + todo_list);
         }
     }
 
@@ -70,7 +79,6 @@ export default class ReactionHandler
         {
             todo_entry.RemoveParticipant( user.username );
             todo_list.AddTodoEntry(todo_key, todo_entry);
-            console.log("TODO LIST Remove: " + todo_list);
         }
     }
 }
