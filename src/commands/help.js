@@ -17,6 +17,10 @@ module.exports = {
                     {
                         name: '!todos',
                         value: 'Query all todo items'
+                    },
+                    {
+                        name: '!complete <item>',
+                        value: 'Mark a todo as completed'
                     }
                 ],
             }
