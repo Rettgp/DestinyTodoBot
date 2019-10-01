@@ -44,11 +44,11 @@ export default class ReactionHandler
         }
 
         let new_embed = reaction.message.embeds[0];
-        new_embed.description = "";
+        new_embed.title = "";
         for (let participant of todo_entry.Participants())
         {
             // TODO (Garrett): Trailing comma
-            new_embed.description += participant + ",";
+            new_embed.title += `\n${participant}`;
         }
         reaction.message.edit(new Discord.RichEmbed(new_embed));
 

@@ -17,14 +17,11 @@ export default class TodoQuery
             const todo_message = {
                 embed: {
                     color: 12652005,
-                    description: "",
                     author: {
                         name: "",
                         icon_url: ""
                     },
-                    provider: {
-                        name: ""
-                    }
+                    title: ""
                 }
             };
 
@@ -35,7 +32,7 @@ export default class TodoQuery
             for (let participant of value.Participants())
             {
                 // TODO (Garrett): Trailing comma
-                todo_message.embed.description += participant + ",";
+                todo_message.embed.title += `\n${participant}`
             }
             this.message.channel.send(todo_message).then( async message => {
                 await message.react("✅");
