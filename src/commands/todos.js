@@ -11,6 +11,7 @@ module.exports = {
         const info_message = {
             embed: {
                 description: "",
+                color: 0,
             }
         };
 
@@ -19,6 +20,7 @@ module.exports = {
         if (todo_list_json === undefined)
         {
             info_message.embed.description = `No Todo list has been setup.`
+            info_message.embed.color = 10038562;
             message.channel.send(info_message);
             return;
         }
@@ -28,6 +30,7 @@ module.exports = {
 
         if (todo_list.GetTodos().size < 1){
             info_message.embed.description = `All Todo tasks have been completed.`
+            info_message.embed.color = 2067276;
             message.channel.send(info_message);
             return;
         }
