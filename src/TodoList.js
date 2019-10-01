@@ -20,6 +20,16 @@ export default class TodoList
         this.todo_list.set(todo, entry);
     }
 
+    RemoveTodo(todo_key)
+    {
+        this.todo_list.delete(todo_key);
+    }
+
+    TodoExists(todo_key)
+    {
+        return this.todo_list.has(todo_key);
+    }
+
     AddParticipant(todo, person)
     {
         let entry = this.todo_list.get(todo);
