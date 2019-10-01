@@ -7,10 +7,10 @@ export default class ReactionHandler
         this.keyv = keyv;
     }
 
-    async Handle(reaction, user, keyv)
+    async Handle(reaction, user)
     {
         let server_id = reaction.message.guild.id;
-        let todo_list_json = await keyv.get(server_id);
+        let todo_list_json = await this.keyv.get(server_id);
         if (todo_list_json === undefined)
         {
             return;
@@ -41,7 +41,7 @@ export default class ReactionHandler
             todo_list.GetTodos().delete(todo_key);
         }
         console.log("WRITING: " + todo_list);
-        await keyv.set(server_id, todo_list.Serialize());
+        await this.keyv.set(server_id, todo_list.Serialize());
     }
 
     Accept(todo_list, todo_key, user)

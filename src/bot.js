@@ -3,14 +3,14 @@ const fs = require("fs");
 import ReactionHandler from "./ReactionHandler"
 import Keyv from 'keyv';
 const keyv = new Keyv(process.env.PROD_MONGODB);
-const botOneID = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
-const botTwoID = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
+const bot1_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
+const bot2_id = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 
-const reaction_handler = new ReactionHandler();
+const reaction_handler = new ReactionHandler(keyv);
 
 // When the bot is connected and ready, log to console.
 bot.on('ready', () =>
@@ -69,7 +69,7 @@ bot.on('messageReactionAdd', (messageReaction, user) =>
         return;
     }
 
-    reaction_handler.Handle(messageReaction, user, keyv);
+    reaction_handler.Handle(messageReaction, user);
 });
 
 bot.on('error', err =>
@@ -87,4 +87,4 @@ for (const file of commandFiles)
     bot.commands.set(command.name, command);
 }
 
-bot.login(botOneID);
+bot.login(bot1_id);
