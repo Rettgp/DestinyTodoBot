@@ -1,6 +1,7 @@
 import TodoList from '../TodoList'
 import TodoQuery from '../TodoQuery'
 import { ReactionEmoji } from 'discord.js';
+import ColorCode from '../Color';
 
 module.exports = {
     name: 'todo',
@@ -11,6 +12,7 @@ module.exports = {
         const info_message = {
             embed: {
                 description: "",
+                color: ColorCode.DEFAULT,
             }
         };
 
@@ -28,6 +30,7 @@ module.exports = {
             todo_list.AddParticipant(todo_name, message.author.username);
             await keyv.set(server_id, todo_list.Serialize());
             info_message.embed.description = `${message.author.username} has added: ${todo_name}`
+            info_message.embed.color = ColorCode.GREEN;
             message.channel.send(info_message);
 
             // Update the todos and show the list. This seems dirty.

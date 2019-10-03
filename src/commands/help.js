@@ -1,5 +1,6 @@
 import TodoList from '../TodoList'
 import { ReactionEmoji } from 'discord.js';
+import ColorCode from '../Color';
 
 module.exports = {
     name: 'help',
@@ -9,6 +10,7 @@ module.exports = {
         const info_message = {
             embed: {
                 description: "DestinyTodoBot Commands Help",
+                color: ColorCode.DEFAULT,
                 fields: [
                     {
                         name: '!todo <item>',
@@ -26,6 +28,7 @@ module.exports = {
             }
         };
 
+        info_message.embed.color = ColorCode.PURPLE;
         message.channel.send(info_message);
         return;
     },

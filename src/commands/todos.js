@@ -1,6 +1,7 @@
 import TodoList from '../TodoList'
 import { ReactionEmoji } from 'discord.js';
 import TodoQuery from '../TodoQuery';
+import ColorCode from '../Color';
 
 module.exports = {
     name: 'todos',
@@ -11,16 +12,16 @@ module.exports = {
         const info_message = {
             embed: {
                 description: "",
-                color: 0,
+                color: ColorCode.DEFAULT,
             }
         };
 
         let todo_list_json = await keyv.get(server_id);
-        
+
         if (todo_list_json === undefined)
         {
             info_message.embed.description = `No Todo list has been setup.`
-            info_message.embed.color = 10038562;
+            info_message.embed.color = ColorCode.DARK_RED;
             message.channel.send(info_message);
             return;
         }
@@ -30,7 +31,7 @@ module.exports = {
 
         if (todo_list.GetTodos().size < 1){
             info_message.embed.description = `All Todo tasks have been completed.`
-            info_message.embed.color = 2067276;
+            info_message.embed.color = ColorCode.GREEN;
             message.channel.send(info_message);
             return;
         }
