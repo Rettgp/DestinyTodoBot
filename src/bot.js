@@ -3,8 +3,8 @@ const fs = require("fs");
 import ReactionHandler from "./ReactionHandler"
 import Keyv from 'keyv';
 const keyv = new Keyv(process.env.PROD_MONGODB);
-const bot1_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
-const bot2_id = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
+const bot_prod_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
+const bot_dev_id = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();
@@ -87,4 +87,4 @@ for (const file of commandFiles)
     bot.commands.set(command.name, command);
 }
 
-bot.login(bot1_id);
+bot.login(bot_dev_id);
