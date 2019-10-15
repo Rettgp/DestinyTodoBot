@@ -58,43 +58,44 @@ module.exports = {
         let [membership_type, destiny_membership_id] = GetFirstDestinyMembership(destiny_membership_data);
         let profile = await BungieApi.Destiny2.getProfile(String(destiny_membership_id), membership_type);
         let characters = GetCharactersFromProfile(profile);
-        let text = "";
+        let char = {};
+        let date_time = 0;
         for (let char_id of characters)
         {
-            const char_message = {
-                embed: {
-                    color: ColorCode.DEFAULT,
-                    title: "",
-                }
-            };
-            const equipment_message = {
-                embed: {
-                    color: ColorCode.DEFAULT,
-                    title: "",
-                    thumbnail: {
-                        url: ""
-                    }
-                }
-            };
             let options = {
                 characterId: char_id,
                 membershipId: destiny_membership_id,
                 mType: membership_type,
                 components: ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSTATS"]
             }
-            let char = await BungieApi.Destiny2.getCharacter(options);
-            let [char_class, char_light] = GetCharacterInfo(char);
-            // TODO (Garrett): Deal with more than the first equipment
-            let [item_name, item_icon, item_power] = GetCharacterEquipment(char);
-            char_message.embed.title = char_class + " - " + char_light;
-            char_message.embed.color = ColorCode.GOLD;
-            message.channel.send(char_message);
+            let char_response = await BungieApi.Destiny2.getCharacter(options);
 
-            equipment_message.embed.title = item_name + " - " + item_power;
-            equipment_message.embed.thumbnail.url = item_icon;
-            equipment_message.embed.color = ColorCode.BLUE;
-            message.channel.send(equipment_message);
+            let date_last_played = Date.parse(char_response.Response.character.data.dateLastPlayed);
+            if (date_last_played > date_time)
+            {
+                char = char_response
+                date_time = date_last_played;
+            }
         }
+        
+        const equipment_message = {
+            embed: {
+                color: ColorCode.DEFAULT,
+                title: "",
+                thumbnail: {
+                    url: ""
+                }
+            }
+        };
+        let [char_class, char_light] = GetCharacterInfo(char);
+        // TODO (Garrett): Deal with more than the first equipment
+        let [item_name, item_icon, item_power] = GetCharacterEquipment(char);
+
+        message.channel.send(char_class + " - " + char_light);
+        equipment_message.embed.title = item_name + " - " + item_power;
+        equipment_message.embed.thumbnail.url = item_icon;
+        equipment_message.embed.color = ColorCode.BLUE;
+        message.channel.send(equipment_message);
 
         return;
     },
