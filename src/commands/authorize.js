@@ -16,7 +16,12 @@ module.exports = {
         let server_id = message.guild.id;
         const info_message = {
             embed: {
-                description: "",
+                fields: [
+                    {
+                        name: "Authorize me to view your Destiny information!",
+                        value: "",
+                    }
+                ],
                 color: ColorCode.DEFAULT,
             }
         };
@@ -31,15 +36,15 @@ module.exports = {
             BungieApi.requestAccessToken(code).then( async(oAuth) =>
             {
                 await keyv.set(server_id + "-" + message.author.id, oAuth.membership_id);
-                info_message.embed.description = "Your ID has been stored and you can now take part in the API";
-                info_message.embed.color = ColorCode.GREEN;
-                message.channel.send(info_message);
+                message.channel.send(`Thank you ${message.author.username}!`);
                 server.close();
             });
         };
         app.get('/', StoreOAuth);
 
-        open(BungieApi.authUri);
+        info_message.embed.fields[0].value = `[${message.author.username}](${BungieApi.authUri})`;
+        info_message.embed.color = ColorCode.GOLD;
+        message.channel.send(info_message);
 
         return;
     },

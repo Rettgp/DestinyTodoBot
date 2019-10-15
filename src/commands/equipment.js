@@ -77,6 +77,15 @@ module.exports = {
         }
 
         let bungie_membership_id = await keyv.get(server_id + "-" + message.mentions.members.first().id);
+        if (bungie_membership_id === undefined)
+        {
+            info_message.embed.description = `${message.mentions.members.first().user.username} has not authorized me yet :(`
+            info_message.embed.color = ColorCode.RED;
+            message.channel.send(info_message);
+            message.channel.stopTyping();
+            return;
+        }
+
         let destiny_membership_data = await BungieApi.User.getMembershipDataById(String(bungie_membership_id), "BUNGIENEXT");
         let [membership_type, destiny_membership_id] = GetFirstDestinyMembership(destiny_membership_data);
         let profile = await BungieApi.Destiny2.getProfile(String(destiny_membership_id), membership_type);
