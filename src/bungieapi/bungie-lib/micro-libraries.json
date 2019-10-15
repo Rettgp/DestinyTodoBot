@@ -1,0 +1,50 @@
+[
+	{
+		"name"    : "content",
+		"wrapperKey" : "Content",
+		"main"    : "Content.js",
+		"path"    : "/micro-libraries/Content/"
+	},
+	{
+		"name"    : "user",
+		"wrapperKey" : "User",
+		"main"    : "User.js",
+		"path"    : "/micro-libraries/User/"
+	},
+	{
+		"name"    : "forum",
+		"wrapperKey" : "Forum",
+		"main"    : "Forum.js",
+		"path"    : "/micro-libraries/Forum/"
+	},
+	{
+		"name" : "groupV2",
+		"wrapperKey" : "GroupV2",
+		"main" : "GroupV2.js",
+		"path" : "/micro-libraries/GroupV2/"
+	},
+	{
+		"name" : "destiny2",
+		"wrapperKey" : "Destiny2",
+		"main" : "Destiny2.js",
+		"path" : "/micro-libraries/Destiny2/"
+	},
+	{
+		"name" : "communityContent",
+		"wrapperKey" : "CC",
+		"main" : "CommunityContent.js",
+		"path" : "/micro-libraries/CommunityContent/"
+	},
+	{
+		"name" : "trending",
+		"wrapperKey" : "Trending",
+		"main" : "Trending.js",
+		"path" : "/micro-libraries/Trending/"
+	},
+	{
+		"name" : "fireteam",
+		"wrapperKey" : "Fireteam",
+		"main" : "Fireteam.js",
+		"path" : "/micro-libraries/Fireteam/"
+	}
+]
