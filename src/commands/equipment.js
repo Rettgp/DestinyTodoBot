@@ -14,10 +14,32 @@ function GetCharacterInfo(resp)
     return [class_text, light];
 }
 
-function GetCharacterEquipment(resp)
+function GetCharacterKinetic(resp)
 {
     let item_hash = resp.Response.equipment.data.items[0].itemHash;
     let item_instance_id = resp.Response.equipment.data.items[0].itemInstanceId;
+    let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
+    let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
+    let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
+
+    return [item_name, item_icon, item_power];
+}
+
+function GetCharacterEnergy(resp)
+{
+    let item_hash = resp.Response.equipment.data.items[1].itemHash;
+    let item_instance_id = resp.Response.equipment.data.items[1].itemInstanceId;
+    let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
+    let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
+    let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
+
+    return [item_name, item_icon, item_power];
+}
+
+function GetCharacterPower(resp)
+{
+    let item_hash = resp.Response.equipment.data.items[2].itemHash;
+    let item_instance_id = resp.Response.equipment.data.items[2].itemInstanceId;
     let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
     let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
     let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
@@ -39,7 +61,7 @@ module.exports = {
     {
         message.channel.startTyping();
         let server_id = message.guild.id;
-        const info_message = {
+        let info_message = {
             embed: {
                 description: "",
                 color: ColorCode.DEFAULT,
@@ -79,7 +101,15 @@ module.exports = {
             }
         }
         
-        const equipment_message = {
+        let [char_class, char_light] = GetCharacterInfo(char);
+        message.channel.send(char_class + " - " + char_light);
+
+        let [kinetic_item_name, kinetic_item_icon, kinetic_item_power] = GetCharacterKinetic(char);
+        let [energy_item_name, energy_item_icon, energy_item_power] = GetCharacterEnergy(char);
+        let [power_item_name, power_item_icon, power_item_power] = GetCharacterPower(char);
+
+        // TODO (Garrett): For the love of god please stop creating 3 separate messages...
+        const kinetic_message = {
             embed: {
                 color: ColorCode.DEFAULT,
                 title: "",
@@ -88,17 +118,40 @@ module.exports = {
                 }
             }
         };
-        let [char_class, char_light] = GetCharacterInfo(char);
-        // TODO (Garrett): Deal with more than the first equipment
-        let [item_name, item_icon, item_power] = GetCharacterEquipment(char);
+        kinetic_message.embed.title = kinetic_item_name + " - " + kinetic_item_power;
+        kinetic_message.embed.thumbnail.url = kinetic_item_icon;
+        kinetic_message.embed.color = ColorCode.WHITE;
+        message.channel.send(kinetic_message);
 
-        message.channel.send(char_class + " - " + char_light);
-        equipment_message.embed.title = item_name + " - " + item_power;
-        equipment_message.embed.thumbnail.url = item_icon;
-        equipment_message.embed.color = ColorCode.BLUE;
-        message.channel.send(equipment_message);
+        const energy_message = {
+            embed: {
+                color: ColorCode.DEFAULT,
+                title: "",
+                thumbnail: {
+                    url: ""
+                }
+            }
+        };
+        energy_message.embed.title = energy_item_name + " - " + energy_item_power;
+        energy_message.embed.thumbnail.url = energy_item_icon;
+        energy_message.embed.color = ColorCode.GREEN;
+        message.channel.send(energy_message);
+
+        const power_message = {
+            embed: {
+                color: ColorCode.DEFAULT,
+                title: "",
+                thumbnail: {
+                    url: ""
+                }
+            }
+        };
+        power_message.embed.title = power_item_name + " - " + power_item_power;
+        power_message.embed.thumbnail.url = power_item_icon;
+        power_message.embed.color = ColorCode.PURPLE;
+        message.channel.send(power_message);
+
         message.channel.stopTyping();
-
         return;
     },
 };
