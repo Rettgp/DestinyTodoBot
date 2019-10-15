@@ -37,6 +37,7 @@ module.exports = {
     description: 'FIX ME.',
     async execute(message, args, keyv)
     {
+        message.channel.startTyping();
         let server_id = message.guild.id;
         const info_message = {
             embed: {
@@ -96,6 +97,7 @@ module.exports = {
         equipment_message.embed.thumbnail.url = item_icon;
         equipment_message.embed.color = ColorCode.BLUE;
         message.channel.send(equipment_message);
+        message.channel.stopTyping();
 
         return;
     },
