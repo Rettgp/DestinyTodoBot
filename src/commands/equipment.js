@@ -86,9 +86,9 @@ module.exports = {
             let [char_class, char_light] = GetCharacterInfo(char);
             // TODO (Garrett): Deal with more than the first equipment
             let [item_name, item_icon, item_power] = GetCharacterEquipment(char);
-            info_message.embed.title = char_class + " - " + char_light;
-            info_message.embed.color = ColorCode.GOLD;
-            message.channel.send(info_message);
+            char_message.embed.title = char_class + " - " + char_light;
+            char_message.embed.color = ColorCode.GOLD;
+            message.channel.send(char_message);
 
             equipment_message.embed.title = item_name + " - " + item_power;
             equipment_message.embed.thumbnail.url = item_icon;
