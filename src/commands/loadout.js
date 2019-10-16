@@ -59,7 +59,6 @@ module.exports = {
     description: 'FIX ME.',
     async execute(message, args, keyv)
     {
-        message.channel.startTyping();
         let server_id = message.guild.id;
         let info_message = {
             embed: {
@@ -76,20 +75,21 @@ module.exports = {
             return;
         }
 
-        let bungie_membership_id = await keyv.get(server_id + "-" + message.mentions.members.first().id);
-        if (bungie_membership_id === undefined)
+        let discord_destiny_profile_json = await keyv.get(server_id + "-" + message.mentions.members.first().id);
+        console.log(discord_destiny_profile_json);
+        if (discord_destiny_profile_json === undefined)
         {
             info_message.embed.description = `${message.mentions.members.first().user.username} has not authorized me yet :(`
             info_message.embed.color = ColorCode.RED;
             message.channel.send(info_message);
-            message.channel.stopTyping();
             return;
         }
 
-        let destiny_membership_data = await BungieApi.User.getMembershipDataById(String(bungie_membership_id), "BUNGIENEXT");
-        let [membership_type, destiny_membership_id] = GetFirstDestinyMembership(destiny_membership_data);
-        let profile = await BungieApi.Destiny2.getProfile(String(destiny_membership_id), membership_type);
-        let characters = GetCharactersFromProfile(profile);
+        message.channel.startTyping();
+        let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
+        let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
+        let membership_type = discord_destiny_profile.membership_type;
+        let characters = discord_destiny_profile.characters.split(",");
         let char = {};
         let date_time = 0;
         for (let char_id of characters)

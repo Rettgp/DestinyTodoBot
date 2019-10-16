@@ -325,6 +325,35 @@ async function enumLookup( key, Table ){
 	} );
 }
 
+async function enumLookupFuzzy( key, Table ){
+	return new Promise( ( resolve, reject ) => {
+		// convert string keys to uppercase
+		key = ( typeof key === "string" ) ? key.toUpperCase() : key;
+		key = key.replace(/\s/g, '');
+		for (let table_key of Object.keys(Table))
+		{
+			if (key.includes(table_key))
+			{
+				key = table_key;
+			}
+		}
+		let typeOf = typeof Table[ key ];
+
+		if(  ( typeOf !== 'number' && typeOf !== 'string' ) ){
+			reject( new EnumError( {
+				key   : key,
+				Table : Table
+			} ) );
+		} else {
+			if( typeOf == 'string' ){
+				resolve ( Table[key] );
+			} else {
+				resolve ( key );
+			}
+		}
+	} );
+}
+
 /**
  * URI enpoints are saved directly from Bungie with the placeholders in tact. The placeholders in the path each represent
  * an API parameter.
@@ -371,7 +400,7 @@ async function enumLookup( key, Table ){
  * // Both examples above produce this output
  * "https://www.Bungie.net/som/path/HELLO/WORLD/bar?key=value&second=2"
  */
-async function renderEndpoint( uri, PathParams = {}, QueryStrings = null ){
+async function renderEndpoint( uri, PathParams = {}, QueryStrings = null, delimeter = "&" ){
 	return new Promise( ( resolve, reject) => {
 		if( typeof PathParams !== 'object' )
 			reject( "You did not provide an Object containing your key/value pairs");
@@ -403,7 +432,7 @@ async function renderEndpoint( uri, PathParams = {}, QueryStrings = null ){
 
 		// Add any query strings we were sent
 		if( typeof QueryStrings == 'object' )
-			rendered += "?" + QueryString.unescape(QueryString.stringify( QueryStrings, "," ));
+			rendered += "?" + QueryString.unescape(QueryString.stringify( QueryStrings, delimeter ));
 
 		console.log(rendered)
 		resolve( encodeURI( rendered ) );
@@ -476,6 +505,7 @@ module.exports = {
 	MicroLibLoadError,
 	renderEndpoint,
 	enumLookup,
+	enumLookupFuzzy,
 	EnumError,
 	generateUserAgent,
 	libInfo : Info,

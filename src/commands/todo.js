@@ -37,8 +37,8 @@ module.exports = {
             todo_list_json = await keyv.get(server_id);
             todo_list.Deserialize(todo_list_json);
 
-            let todo_query = new TodoQuery(message, todo_list);
-            todo_query.GetList();
+            let todo_query = new TodoQuery(message, todo_list, keyv);
+            todo_query.GetList(message.guild);
         }
         return;
     },

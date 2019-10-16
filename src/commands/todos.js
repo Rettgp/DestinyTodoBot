@@ -36,8 +36,8 @@ module.exports = {
             return;
         }
 
-        let todo_query = new TodoQuery(message, todo_list);
-        todo_query.GetList();
+        let todo_query = new TodoQuery(message, todo_list, keyv);
+        await todo_query.GetList(message.guild);
         
         return;
     },

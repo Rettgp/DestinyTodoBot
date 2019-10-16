@@ -183,6 +183,19 @@ const destinyActivityModeType = {
 	BLACKARMORYRUN          : 66,
 	SALVAGE                 : 67,
 	IRONBANNERSALVAGE       : 68,
+	PVPCOMPETITIVE			: 69,
+	PVPQUICKPLAY			: 70,
+	CLASHQUICKPLAY			: 71,
+	CLASHCOMPETITIVE		: 72,
+	CONTROLQUICKPLAY		: 73,
+	CONTROLCOMPETITIVE		: 74,
+	GAMBITPRIME				: 75,
+	RECKONING				: 76,
+	MENAGERIE				: 77,
+	VEXOFFENSIVE			: 78,
+	NIGHTMAREHUNT			: 79,
+	ELIMINATION				: 80,
+	MOMENTUM				: 81,
 	description             : "Destiny activity mode type"
 };
 
