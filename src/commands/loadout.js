@@ -55,7 +55,7 @@ function GetFirstDestinyMembership(resp)
 }
 
 module.exports = {
-    name: 'equipment',
+    name: 'loadout',
     description: 'FIX ME.',
     async execute(message, args, keyv)
     {
