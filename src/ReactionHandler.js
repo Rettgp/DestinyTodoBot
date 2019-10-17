@@ -67,7 +67,7 @@ export default class ReactionHandler
             !todo_entry.Participants().includes(user.username) )
         {
             todo_entry.AddParticipant( user.username );
-            todo_list.AddTodoEntry(todo_key, todo_entry);
+            todo_list.SetTodoEntry(todo_key, todo_entry);
         }
     }
 
@@ -78,7 +78,7 @@ export default class ReactionHandler
             todo_entry.Participants().includes(user.username) )
         {
             todo_entry.RemoveParticipant( user.username );
-            todo_list.AddTodoEntry(todo_key, todo_entry);
+            todo_list.SetTodoEntry(todo_key, todo_entry);
         }
     }
 }

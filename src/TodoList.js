@@ -36,7 +36,7 @@ export default class TodoList
         entry.AddParticipant(person);
     }
 
-    AddTodoEntry(todo, todo_entry)
+    SetTodoEntry(todo, todo_entry)
     {
         this.todo_list.set(todo, todo_entry);
     }
@@ -65,7 +65,7 @@ export default class TodoList
             {
                 todo_entry.AddParticipant(participants[i]);
             }
-            this.AddTodoEntry(key, todo_entry);
+            this.SetTodoEntry(key, todo_entry);
         }
     }
 }
