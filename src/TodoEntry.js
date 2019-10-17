@@ -1,11 +1,12 @@
 export default class TodoEntry
 {
-    constructor(author, author_avatar)
+    constructor(author, author_avatar, type)
     {
         this.color = Math.floor(Math.random() * 16777214) + 1;
         this.participants = new Array();
         this.author = author;
         this.author_avatar = author_avatar;
+        this.type = type;
     }
 
     AddParticipant(person)
@@ -31,5 +32,10 @@ export default class TodoEntry
     Color()
     {
         return this.color;
+    }
+
+    Type()
+    {
+        return this.type;
     }
 }

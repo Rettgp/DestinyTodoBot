@@ -4,6 +4,7 @@ const Ml = require( __dirname + "/../MicroLibrary.js" );
 const Fs = require( 'fs' );
 const Util = require( 'util' );
 const Path = require( 'path' );
+var StringSimilarity = require('string-similarity');
 var Request = null;
 
 class Destiny2{
@@ -125,7 +126,75 @@ class Destiny2{
 
 	findActivityMode(activity_string)
 	{
+		if (activity_string === "0" || activity_string == 0)
+		{
+			return "";
+		}
+
 		return Ml.enumLookupFuzzy(activity_string, this.Enums.destinyActivityModeType);
+	}
+
+	expandAcronym(acronym_string)
+	{
+		const acronyms = [
+			["GOS", "Garden of Salvation"],
+			["LW", "Last Wish"],
+			["SOTP", "Scourge of the Past"],
+			["COMP", "Competitive"]
+		];
+		const acronym_map = new Map(acronyms);
+
+		let upper_case_string = acronym_string.toUpperCase();
+		let string_array = upper_case_string.split(" ");
+		for (const word of string_array) 
+		{
+			if (acronym_map.has(word))
+			{
+				return acronym_map.get(word);
+			}
+		}
+
+		return acronym_string;
+	}
+
+	standardizeActivityString(activity_string)
+	{
+		// TODO (Garrett): This isnt working for some activities (i.e "ordeal strike")
+		let all_manifest_activities = this.Manifest["en"]["DestinyActivityDefinition"];
+		let best_rating = 0.0;
+		let best_match = "";
+		for (let activity_hash in all_manifest_activities)
+		{
+			if (all_manifest_activities.hasOwnProperty(activity_hash))
+			{
+				let activity_name = all_manifest_activities[activity_hash]["originalDisplayProperties"]["name"];
+				if (activity_name !== undefined)
+				{
+					let rating = StringSimilarity.compareTwoStrings(
+						activity_string.toUpperCase(), activity_name.toUpperCase());
+					if (rating > best_rating)
+					{
+						best_rating = rating;
+						best_match = all_manifest_activities[activity_hash];
+					}
+				}
+			}
+		}
+
+		if (best_rating > 0.6)
+		{
+			let activity_type_hash = best_match["activityTypeHash"];
+			let activity_type = this.Manifest["en"]["DestinyActivityTypeDefinition"][activity_type_hash]["displayProperties"]["name"];
+			return [best_match["originalDisplayProperties"]["name"], activity_type];
+		}
+
+		return [activity_string, 0];
+	}
+
+	findClosestActivity(activity_string)
+	{
+		let standardized_activity_string = this.expandAcronym(activity_string);
+		return this.standardizeActivityString(standardized_activity_string);
 	}
 
 	/**

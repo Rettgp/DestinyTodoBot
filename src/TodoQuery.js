@@ -14,7 +14,7 @@ export default class TodoQuery
         this.keyv = keyv;
     }
 
-    async GetFlavorTextForUser(server_id, user_id, activity_string)
+    async GetFlavorTextForUser(server_id, user_id, activity_string, activity_type)
     {
         let discord_destiny_profile_json = await this.keyv.get(server_id + "-" + user_id);
         if (discord_destiny_profile_json === undefined)
@@ -31,7 +31,7 @@ export default class TodoQuery
         {
             text += await this.activity_history.History(
                 destiny_membership_id, 
-                membership_type, character, activity_string) + "    ";
+                membership_type, character, activity_string, activity_type) + "    ";
         }
 
         return text;
@@ -60,7 +60,7 @@ export default class TodoQuery
             {
                 let discord_guildmember = discord_guild.members.find(val => {return val.user.username === participant});
                 let discord_user_id = discord_guildmember.user.id;
-                let flavor_text = await this.GetFlavorTextForUser(discord_guild.id, discord_user_id, key)
+                let flavor_text = await this.GetFlavorTextForUser(discord_guild.id, discord_user_id, key, value.Type());
                 todo_message.embed.title += `\n${participant} - ${flavor_text}`
             }
             this.message.channel.send(todo_message).then( async message => {

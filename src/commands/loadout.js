@@ -47,13 +47,6 @@ function GetCharacterPower(resp)
     return [item_name, item_icon, item_power];
 }
 
-function GetFirstDestinyMembership(resp)
-{
-    let id = resp.Response.destinyMemberships[0].membershipId;
-    let type = resp.Response.destinyMemberships[0].membershipType;
-    return [type, id];
-}
-
 module.exports = {
     name: 'loadout',
     description: 'FIX ME.',

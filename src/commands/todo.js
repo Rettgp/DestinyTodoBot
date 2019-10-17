@@ -2,6 +2,7 @@ import TodoList from '../TodoList'
 import TodoQuery from '../TodoQuery'
 import { ReactionEmoji } from 'discord.js';
 import ColorCode from '../Color';
+import { BungieApi } from "../bungieapi/BungieApi"
 
 module.exports = {
     name: 'todo',
@@ -26,7 +27,9 @@ module.exports = {
             }
 
             let todo_name = args.join(" ");
-            todo_list.AddTodo(todo_name, message.author.username, message.author.avatarURL);
+            let todo_type = 0;
+            [todo_name, todo_type] = BungieApi.Destiny2.findClosestActivity(todo_name);
+            todo_list.AddTodo(todo_name, message.author.username, message.author.avatarURL, todo_type);
             todo_list.AddParticipant(todo_name, message.author.username);
             await keyv.set(server_id, todo_list.Serialize());
             info_message.embed.description = `${message.author.username} has added: ${todo_name}`

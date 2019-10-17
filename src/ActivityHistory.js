@@ -13,12 +13,17 @@ export default class ActivityHistory
     {
     }
 
-    async History(destiny_membership_id, membership_type, character_id, activity_string)
+    async History(destiny_membership_id, membership_type, character_id, activity_string, activity_mode)
     {
+        if (activity_mode.length == 0 || activity_mode == 0)
+        {
+            return  "";
+        }
+
         let options = {
             page: 0,
-            mode: await BungieApi.Destiny2.findActivityMode(activity_string),
-            count: 1,
+            mode: await BungieApi.Destiny2.findActivityMode(activity_mode),
+            count: 10,
             characterId: character_id,
             destinyMembershipId: destiny_membership_id,
             membershipType: membership_type
@@ -42,10 +47,29 @@ export default class ActivityHistory
         let char_response = await BungieApi.Destiny2.getCharacter(char_options);
         let char_class = GetCharacterInfo(char_response);
 
-        //TODO (Garrett): Maybe filter activities for this week
-        //TODO (Garrett): Only show completed activities
-        //TODO (Garrett): Be smarter on the activity type and what we display. (i.e you cant complete a PVP match so what do you show?)
-        let activity_name = BungieApi.Destiny2.getManifestActivityName(history_resp.Response.activities[0].activityDetails.directorActivityHash);
-        return char_class + " " + activity_name + "✅";
+        let now = new Date();
+        let completed = "❌";
+        for (let activity of history_resp.Response.activities)
+        {
+            let activity_name = BungieApi.Destiny2.getManifestActivityName(activity.activityDetails.directorActivityHash);
+            if (activity_name === activity_string)
+            {
+                let date_last_played = Date.parse(activity.period);
+                let days_into_weekly_reset = now.getDay() - 2; // days since last tuesday
+                if (days_into_weekly_reset < 0) // Current time is on sunday or monday
+                {
+                    days_into_weekly_reset += 5; 
+                }
+                let last_tuesday = Date.parse(new Date(now.getFullYear(), now.getMonth(), now.getDate() - days_into_weekly_reset, 9));
+
+                console.log("Last tuesday: " + last_tuesday);
+                console.log("last_played: " + date_last_played);
+                if (date_last_played > last_tuesday)
+                {
+                    completed = "✅";
+                }
+            }
+        }
+        return char_class + " " + completed;
     }
 }

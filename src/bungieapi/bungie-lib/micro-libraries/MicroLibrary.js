@@ -329,6 +329,7 @@ async function enumLookupFuzzy( key, Table ){
 	return new Promise( ( resolve, reject ) => {
 		// convert string keys to uppercase
 		key = ( typeof key === "string" ) ? key.toUpperCase() : key;
+		console.log(key);
 		key = key.replace(/\s/g, '');
 		for (let table_key of Object.keys(Table))
 		{
