@@ -159,7 +159,9 @@ class Destiny2{
 
 	standardizeActivityString(activity_string)
 	{
-		// TODO (Garrett): This isnt working for some activities (i.e "ordeal strike")
+		// NOTE (Garrett): This may not be perfect. Put a note in here if there is a string that didnt work.
+		// What doesnt work?
+		//
 		let all_manifest_activities = this.Manifest["en"]["DestinyActivityDefinition"];
 		let best_rating = 0.0;
 		let best_match = "";
