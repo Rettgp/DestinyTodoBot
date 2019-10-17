@@ -48,7 +48,10 @@ export default class TodoQuery
                         name: "",
                         icon_url: ""
                     },
-                    title: ""
+                    title: "",
+                    footer: {
+                        text: ""
+                    }
                 }
             };
 
@@ -56,6 +59,10 @@ export default class TodoQuery
             todo_message.embed.color = value.Color();
             todo_message.embed.author.name = key;
             todo_message.embed.author.icon_url = avatar_url;
+            if (value.Date().length > 0)
+            {
+                todo_message.embed.footer.text = value.Date();
+            }
             for (let participant of value.Participants())
             {
                 let discord_guildmember = discord_guild.members.find(val => {return val.user.username === participant});

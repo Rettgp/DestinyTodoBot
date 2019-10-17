@@ -27,9 +27,15 @@ module.exports = {
             }
 
             let todo_name = args.join(" ");
+            let todo_date = "";
+            if (todo_name.includes("(") && todo_name.includes(")"))
+            {
+                todo_date = todo_name.match(/\((.*)\)/i)[1]
+                todo_name = todo_name.replace(/ *\([^)]*\) */g, ""); 
+            }
             let todo_type = 0;
             [todo_name, todo_type] = BungieApi.Destiny2.findClosestActivity(todo_name);
-            todo_list.AddTodo(todo_name, message.author.username, message.author.avatarURL, todo_type);
+            todo_list.AddTodo(todo_name, message.author.username, message.author.avatarURL, todo_type, todo_date);
             todo_list.AddParticipant(todo_name, message.author.username);
             await keyv.set(server_id, todo_list.Serialize());
             info_message.embed.description = `${message.author.username} has added: ${todo_name}`
