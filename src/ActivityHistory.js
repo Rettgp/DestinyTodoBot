@@ -23,7 +23,7 @@ export default class ActivityHistory
         let options = {
             page: 0,
             mode: await BungieApi.Destiny2.findActivityMode(activity_mode),
-            count: 10,
+            count: 10, //TODO (Garrett): Is this too small?
             characterId: character_id,
             destinyMembershipId: destiny_membership_id,
             membershipType: membership_type
