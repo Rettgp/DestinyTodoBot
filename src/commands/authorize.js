@@ -5,7 +5,7 @@ const fs = require('fs')
 const https = require('https')
 const app = express();
 
-const PORT = process.env.PORT || 80;
+const PORT = 80;
 
 function GetCharactersFromProfile(resp)
 {
