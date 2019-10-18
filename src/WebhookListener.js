@@ -40,6 +40,10 @@ export default class WebhookListener
 
     Listen()
     {
+        app.post('/poke', (req, res) =>
+        {
+            res.send({ status: 'OK' });
+        });
         app.get('/oAuth', (req, res) =>
         {
             let code = req.query.code;
