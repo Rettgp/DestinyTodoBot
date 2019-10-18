@@ -88,7 +88,7 @@ class BungieLib{
 				// Yep! try to load it
 				} else {
 					// cache the micro-library in question
-					let mlname = this.MicroLibs[ mlName ];
+					let ml = this.MicroLibs[ mlName ];
 
 					// Try to create a new instance of the micro-library
 					try{
