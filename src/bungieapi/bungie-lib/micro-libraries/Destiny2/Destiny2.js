@@ -1,6 +1,7 @@
 /** @module Destiny2 */
 "use strict"
 const Ml = require( __dirname + "/../MicroLibrary.js" );
+const StreamObject = require('stream-json/streamers/StreamObject');
 const Fs = require( 'fs' );
 const Util = require( 'util' );
 const Path = require( 'path' );
@@ -18,6 +19,27 @@ class Destiny2{
 		this.Enums     = require( __dirname + '/Enums.js' );
 		this.Manifest  = {};
 		this.manifestFiles = [];
+		this.json_stream = StreamObject.withParser();
+		// NOTE: Add all used definitions for manifest here
+		this.DefinitionsToLoad = [
+			"DestinyInventoryItemDefinition",
+			"DestinyClassDefinition",
+			"DestinyActivityDefinition",
+			"DestinyActivityTypeDefinition"
+		]
+
+		this.json_stream.on('data', ({ key, value }) =>
+		{
+			if (this.DefinitionsToLoad.includes(key))
+			{
+				this.Manifest["en"][key] = value;
+			}
+		});
+
+		this.json_stream.on('end', () =>
+		{
+			console.log('Manifest Loaded');
+		});
 	}
 
 	/**
@@ -56,10 +78,9 @@ class Destiny2{
 			files.forEach( file => {
 				// Each manifest file is named lang.json. For instance the 'en' manifest JSON file is named en.json.
 				if( lang === 'all' || file === lang + '.json' ){
-					proms.push( readFile( Path.join( startPath, file ) ).then( contents => {
-						this.Manifest[ lang ] = JSON.parse( contents );
-						return this.Manifest[ lang ];
-					} ) );
+					this.Manifest[lang] = [];
+					const filename = Path.join(startPath, file);
+					Fs.createReadStream(filename).pipe(this.json_stream.input);
 				}
 			} );
 
@@ -104,6 +125,7 @@ class Destiny2{
 		} );
 	}
 
+	// NOTE: Adding a new definition? Make sure to add it to the this.DefinitionsToLoad
 	getManifestItemIcon(itemHash)
 	{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["displayProperties"]["icon"];

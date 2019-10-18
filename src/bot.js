@@ -1,21 +1,25 @@
 const Discord = require('discord.js');
 const fs = require("fs");
 import ReactionHandler from "./ReactionHandler"
+import WebhookListener from "./WebhookListener"
 import Keyv from 'keyv';
 const keyv = new Keyv(process.env.PROD_MONGODB);
 const bot_prod_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
 const bot_dev_id = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
+const bot_id = process.env.DEV === '1' ? bot_dev_id : bot_prod_id;
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 
 const reaction_handler = new ReactionHandler(keyv);
+const webhook_listener = new WebhookListener(keyv);
 
 // When the bot is connected and ready, log to console.
 bot.on('ready', () =>
 {
     console.log('Connected and ready.');
+    webhook_listener.Listen();
 });
 
 const talkedRecently = new Set();
@@ -32,6 +36,11 @@ bot.on('message', async (message) =>
 	const command = args.shift().toLowerCase();
 
     if (!bot.commands.has(command)) return;
+
+    if (message.content === "!authorize")
+    {
+        webhook_listener.SetMessage(message);
+    }
 
     if (talkedRecently.has(message.author.id))
     {
@@ -92,4 +101,4 @@ for (const file of commandFiles)
     bot.commands.set(command.name, command);
 }
 
-bot.login(bot_prod_id);
+bot.login(bot_id);

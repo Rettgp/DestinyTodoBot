@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "babel --presets es2015 -d lib/ src --copy-files",
-        "start": "cd lib && node --optimize_for_size --max_old_space_size=460 bot.js"
+        "start": "cd lib && node --optimize_for_size --max_old_space_size=460 bot.js",
+        "dev": "cd lib && DEV=1 node --optimize_for_size --max_old_space_size=460 bot.js"
     },
     "author": "",
     "license": "ISC",
@@ -18,6 +19,7 @@
         "keyv": "^3.1.0",
         "open": "^6.4.0",
         "request-promise": "^4.2.4",
+        "stream-json": "^1.3.1",
         "string-similarity": "^3.0.0"
     },
     "devDependencies": {
