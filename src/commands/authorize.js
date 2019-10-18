@@ -5,6 +5,8 @@ const fs = require('fs')
 const https = require('https')
 const app = express();
 
+const PORT = process.env.PORT || 80;
+
 function GetCharactersFromProfile(resp)
 {
     return resp.Response.profile.data.characterIds;
@@ -38,7 +40,7 @@ module.exports = {
         let server = https.createServer({
             key: fs.readFileSync(__dirname + '/server.key'),
             cert: fs.readFileSync(__dirname + '/server.cert')
-        }, app).listen(3000);
+        }, app).listen(PORT);
 
         const StoreOAuth = async(req, resp) => {
             let code = req.query.code;
