@@ -92,4 +92,4 @@ for (const file of commandFiles)
     bot.commands.set(command.name, command);
 }
 
-bot.login(bot_dev_id);
+bot.login(bot_prod_id);

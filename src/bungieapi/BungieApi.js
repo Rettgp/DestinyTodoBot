@@ -13,4 +13,4 @@ const ApiCredentials_PROD = {
 const BungieLib = require('./bungie-lib/main.js');
 
 // This will load ALL micro-libraries
-export const BungieApi = new BungieLib(ApiCredentials_DEV);
+export const BungieApi = new BungieLib(ApiCredentials_PROD);
