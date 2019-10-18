@@ -2,11 +2,8 @@ import { BungieApi } from "../bungieapi/BungieApi"
 import ColorCode from '../Color';
 const express = require('express')
 const fs = require('fs')
-const open = require('open')
 const https = require('https')
-const querystring = require('querystring');
 const app = express();
-const DEV = true;
 
 function GetCharactersFromProfile(resp)
 {
@@ -62,7 +59,7 @@ module.exports = {
                 server.close();
             });
         };
-        app.get('/', StoreOAuth);
+        app.get('/oAuth', StoreOAuth);
 
         info_message.embed.fields[0].value = `[${message.author.username}](${BungieApi.authUri})`;
         info_message.embed.color = ColorCode.GOLD;

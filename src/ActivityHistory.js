@@ -30,11 +30,8 @@ export default class ActivityHistory
             destinyMembershipId: destiny_membership_id,
             membershipType: membership_type
         }
+
         let history_resp = await BungieApi.Destiny2.getActivityHistory(options);
-
-        // TODO (Garrett): Remove this later. I kept it in for debugging reasons until this becomes more fleshed out
-        console.log(history_resp);
-
         if (history_resp.Response.activities === undefined)
         {
             return "";

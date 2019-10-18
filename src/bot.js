@@ -41,7 +41,7 @@ bot.on('message', async (message) =>
     {
         try
         {
-            if (!message.guild.emojis.exists('name', 'complete'))
+            if (!message.guild.emojis.some(element => (element.name === 'complete')))
             {
                 message.guild.createEmoji('./Complete.png', 'complete');
                 message.guild.createEmoji('./Incomplete.png', 'incomplete');
