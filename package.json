@@ -7,6 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "babel --presets es2015 -d lib/ src --copy-files",
         "start": "cd lib && node --optimize_for_size --max_old_space_size=460 bot.js",
+        "web": "node web.js",
         "dev": "cd lib && DEV=1 node --optimize_for_size --max_old_space_size=460 bot.js"
     },
     "author": "",
