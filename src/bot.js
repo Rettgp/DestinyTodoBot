@@ -41,6 +41,11 @@ bot.on('message', async (message) =>
     {
         try
         {
+            if (!message.guild.emojis.exists('name', 'complete'))
+            {
+                message.guild.createEmoji('./Complete.png', 'complete');
+                message.guild.createEmoji('./Incomplete.png', 'incomplete');
+            }
             bot.commands.get(command).execute(message, args, keyv);
 
             // Adds the user to the set so that they can't talk for 2 seconds

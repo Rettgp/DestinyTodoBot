@@ -10,7 +10,9 @@ export default class TodoQuery
     {
         this.message = message;
         this.todo_list = todo_list;
-        this.activity_history = new ActivityHistory;
+        let complete_emoji = message.guild.emojis.find(val => val.name === 'complete');
+        let incomplete_emoji = message.guild.emojis.find(val => val.name === 'incomplete');
+        this.activity_history = new ActivityHistory(complete_emoji, incomplete_emoji);
         this.keyv = keyv;
     }
 
@@ -31,7 +33,7 @@ export default class TodoQuery
         {
             text += await this.activity_history.History(
                 destiny_membership_id, 
-                membership_type, character, activity_string, activity_type) + "    ";
+                membership_type, character, activity_string, activity_type) + "  ";
         }
 
         return text;

@@ -39,8 +39,8 @@ module.exports = {
         };
 
         let server = https.createServer({
-            key: fs.readFileSync('server.key'),
-            cert: fs.readFileSync('server.cert')
+            key: fs.readFileSync(__dirname + '/server.key'),
+            cert: fs.readFileSync(__dirname + '/server.cert')
         }, app).listen(3000);
 
         const StoreOAuth = async(req, resp) => {

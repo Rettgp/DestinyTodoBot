@@ -9,8 +9,10 @@ function GetCharacterInfo(resp)
 
 export default class ActivityHistory
 {
-    constructor()
+    constructor(complete_emoji, incomplete_emoji)
     {
+        this.complete = `<:${complete_emoji.name}:${complete_emoji.id}>`;
+        this.incomplete = `<:${incomplete_emoji.name}:${incomplete_emoji.id}>`;
     }
 
     async History(destiny_membership_id, membership_type, character_id, activity_string, activity_mode)
@@ -48,7 +50,7 @@ export default class ActivityHistory
         let char_class = GetCharacterInfo(char_response);
 
         let now = new Date();
-        let completed = "❌";
+        let completed = this.incomplete;
         for (let activity of history_resp.Response.activities)
         {
             let activity_name = BungieApi.Destiny2.getManifestActivityName(activity.activityDetails.directorActivityHash);
@@ -66,7 +68,7 @@ export default class ActivityHistory
                 console.log("last_played: " + date_last_played);
                 if (date_last_played > last_tuesday)
                 {
-                    completed = "✅";
+                    completed = this.complete;
                 }
             }
         }
