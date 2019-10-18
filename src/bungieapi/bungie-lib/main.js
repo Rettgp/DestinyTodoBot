@@ -88,11 +88,15 @@ class BungieLib{
 				// Yep! try to load it
 				} else {
 					// cache the micro-library in question
-					let ml = this.MicroLibs[ MlName ];
+					let ml = this.MicroLibs[ mlName ];
 
 					// Try to create a new instance of the micro-library
 					try{
 						this[ ml.wrapperKey ] = new( require( __dirname + ml.path + ml.main ) )( this.ApiCreds );
+						if (ml.wrapperKey === "Destiny2")
+						{
+							this[ml.wrapperKey].init().then(output => console.log(output));
+						}
 					// Something went wrong, panic and run in a circle
 					}catch( e ){
 						throw new Ml.MicroLibLoadError( {

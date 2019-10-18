@@ -6,21 +6,17 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "babel --presets es2015 -d lib/ src --copy-files",
-        "start": "cd lib && node bot.js"
+        "start": "cd lib && node --optimize_for_size --max_old_space_size=460 bot.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
         "@keyv/mongo": "^1.1.0",
-        "body-parser": "^1.18.3",
         "bungie-net-api": "^1.0.6",
-        "cheerio": "^1.0.0-rc.2",
         "discord.js": "^11.4.2",
         "express": "^4.17.1",
         "keyv": "^3.1.0",
         "open": "^6.4.0",
-        "puppeteer": "^1.14.0",
-        "request": "^2.88.0",
         "request-promise": "^4.2.4",
         "string-similarity": "^3.0.0"
     },
