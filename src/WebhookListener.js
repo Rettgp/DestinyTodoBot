@@ -22,13 +22,13 @@ export default class WebhookListener
     constructor(keyv)
     {
         this.keyv = keyv;
-        if (process.env.DEV === '1')
-        {
+        // if (process.env.DEV === '1')
+        // {
             https.createServer({
                 key: fs.readFileSync(__dirname + '/server.key'),
                 cert: fs.readFileSync(__dirname + '/server.cert')
             }, app).listen(PORT);
-        }
+        // }
 
         this.message = undefined;
     }
