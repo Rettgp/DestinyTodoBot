@@ -46,12 +46,21 @@ function GetCharacterPower(resp)
 async function AddPerks(emoji_handler, perks)
 {
     let emoji_string = "";
+    let emoji_number = 1;
     for (let perk of perks)
     {
         if (perk.isEnabled == true && perk.isVisible == true)
         {
             emoji_string += await emoji_handler.PerkEmojiString(perk.plugHash);
-            emoji_string += " ";
+            if ((emoji_number % 5) == 0)
+            {
+                emoji_string += "\n"
+            }
+            else
+            {
+                emoji_string += " ";
+            }
+            ++emoji_number
         }
     }
 
@@ -113,7 +122,6 @@ module.exports = {
             }
         }
         
-        console.log(char.Response.itemComponents);
         let [char_class, char_light] = GetCharacterInfo(char);
         message.channel.send(char_class + " - " + char_light);
 
