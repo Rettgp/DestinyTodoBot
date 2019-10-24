@@ -25,7 +25,8 @@ class Destiny2{
 			"DestinyInventoryItemDefinition",
 			"DestinyClassDefinition",
 			"DestinyActivityDefinition",
-			"DestinyActivityTypeDefinition"
+			"DestinyActivityTypeDefinition",
+			"DestinyInventoryItemDefinition"
 		]
 
 		this.json_stream.on('data', ({ key, value }) =>
@@ -144,6 +145,26 @@ class Destiny2{
 	getManifestActivityName(activityHash)
 	{
 		return this.Manifest["en"]["DestinyActivityDefinition"][String(activityHash)]["originalDisplayProperties"]["name"];
+	}
+
+	getPerkNameAndIcon(perk_hash)
+	{
+		let perk_definition = this.Manifest["en"]["DestinyInventoryItemDefinition"];
+		let perk = perk_definition[String(perk_hash)];
+		if (perk["displayProperties"]["hasIcon"] == true &&
+			perk["blacklisted"] == false)
+		{
+			let perk_name_sanitized = "perk_" + 
+				perk["displayProperties"]["name"].replace(/ /g, "_").replace(/-/g, "_").toLowerCase();
+			let perk_icon_location = "https://www.bungie.net" + perk["displayProperties"]["icon"];
+			let perk_info = {
+				name: perk_name_sanitized,
+				icon: perk_icon_location
+			}
+			return perk_info;
+		}
+
+		return null;
 	}
 
 	findActivityMode(activity_string)

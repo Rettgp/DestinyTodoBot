@@ -1,10 +1,6 @@
 import { BungieApi } from "../bungieapi/BungieApi"
 import ColorCode from '../Color';
-
-function GetCharactersFromProfile(resp)
-{
-    return resp.Response.profile.data.characterIds;
-}
+import EmojiHandler from "../EmojiHandler"
 
 function GetCharacterInfo(resp)
 {
@@ -22,7 +18,7 @@ function GetCharacterKinetic(resp)
     let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
     let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
 
-    return [item_name, item_icon, item_power];
+    return [item_name, item_icon, item_power, item_instance_id];
 }
 
 function GetCharacterEnergy(resp)
@@ -33,7 +29,7 @@ function GetCharacterEnergy(resp)
     let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
     let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
 
-    return [item_name, item_icon, item_power];
+    return [item_name, item_icon, item_power, item_instance_id];
 }
 
 function GetCharacterPower(resp)
@@ -44,7 +40,22 @@ function GetCharacterPower(resp)
     let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
     let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
 
-    return [item_name, item_icon, item_power];
+    return [item_name, item_icon, item_power, item_instance_id];
+}
+
+async function AddPerks(emoji_handler, perks)
+{
+    let emoji_string = "";
+    for (let perk of perks)
+    {
+        if (perk.isEnabled == true && perk.isVisible == true)
+        {
+            emoji_string += await emoji_handler.PerkEmojiString(perk.plugHash);
+            emoji_string += " ";
+        }
+    }
+
+    return emoji_string;
 }
 
 module.exports = {
@@ -69,7 +80,6 @@ module.exports = {
         }
 
         let discord_destiny_profile_json = await keyv.get(server_id + "-" + message.mentions.members.first().id);
-        console.log(discord_destiny_profile_json);
         if (discord_destiny_profile_json === undefined)
         {
             info_message.embed.description = `${message.mentions.members.first().user.username} has not authorized me yet :(`
@@ -91,7 +101,7 @@ module.exports = {
                 characterId: char_id,
                 membershipId: destiny_membership_id,
                 mType: membership_type,
-                components: ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSTATS"]
+                components: ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"]
             }
             let char_response = await BungieApi.Destiny2.getCharacter(options);
 
@@ -103,24 +113,29 @@ module.exports = {
             }
         }
         
+        console.log(char.Response.itemComponents);
         let [char_class, char_light] = GetCharacterInfo(char);
         message.channel.send(char_class + " - " + char_light);
 
-        let [kinetic_item_name, kinetic_item_icon, kinetic_item_power] = GetCharacterKinetic(char);
-        let [energy_item_name, energy_item_icon, energy_item_power] = GetCharacterEnergy(char);
-        let [power_item_name, power_item_icon, power_item_power] = GetCharacterPower(char);
+        let [kinetic_item_name, kinetic_item_icon, kinetic_item_power, kinetic_instance_id] = GetCharacterKinetic(char);
+        let [energy_item_name, energy_item_icon, energy_item_power, energy_instance_id] = GetCharacterEnergy(char);
+        let [power_item_name, power_item_icon, power_item_power, power_instance_id] = GetCharacterPower(char);
+
+        let emoji_handler = new EmojiHandler(message.guild);
 
         // TODO (Garrett): For the love of god please stop creating 3 separate messages...
         const kinetic_message = {
             embed: {
                 color: ColorCode.DEFAULT,
                 title: "",
+                description: "",
                 thumbnail: {
                     url: ""
                 }
             }
         };
-        kinetic_message.embed.title = kinetic_item_name + " - " + kinetic_item_power;
+        kinetic_message.embed.title = kinetic_item_name + " - " + kinetic_item_power + "\n";
+        kinetic_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[kinetic_instance_id].sockets);
         kinetic_message.embed.thumbnail.url = kinetic_item_icon;
         kinetic_message.embed.color = ColorCode.WHITE;
         message.channel.send(kinetic_message);
@@ -129,12 +144,14 @@ module.exports = {
             embed: {
                 color: ColorCode.DEFAULT,
                 title: "",
+                description: "",
                 thumbnail: {
                     url: ""
                 }
             }
         };
-        energy_message.embed.title = energy_item_name + " - " + energy_item_power;
+        energy_message.embed.title = energy_item_name + " - " + energy_item_power + "\n";
+        energy_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[energy_instance_id].sockets);
         energy_message.embed.thumbnail.url = energy_item_icon;
         energy_message.embed.color = ColorCode.GREEN;
         message.channel.send(energy_message);
@@ -143,17 +160,21 @@ module.exports = {
             embed: {
                 color: ColorCode.DEFAULT,
                 title: "",
+                description: "",
                 thumbnail: {
                     url: ""
                 }
             }
         };
-        power_message.embed.title = power_item_name + " - " + power_item_power;
+        power_message.embed.title = power_item_name + " - " + power_item_power + "\n";
+        power_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[power_instance_id].sockets);
         power_message.embed.thumbnail.url = power_item_icon;
         power_message.embed.color = ColorCode.PURPLE;
         message.channel.send(power_message);
 
         message.channel.stopTyping();
+
+        emoji_handler.CleanupEmojis();
         return;
     },
 };
