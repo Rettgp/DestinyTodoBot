@@ -26,7 +26,6 @@ class Destiny2{
 			"DestinyClassDefinition",
 			"DestinyActivityDefinition",
 			"DestinyActivityTypeDefinition",
-			"DestinyInventoryItemDefinition"
 		]
 
 		this.json_stream.on('data', ({ key, value }) =>
@@ -135,6 +134,16 @@ class Destiny2{
 	getManifestItemName(itemHash)
 	{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["displayProperties"]["name"];
+	}
+
+	getManifestItemTierName(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["inventory"]["tierTypeName"];
+	}
+
+	getManifestItemTypeDisplayName(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["itemTypeDisplayName"];
 	}
 
 	getManifestClassName(classHash)
