@@ -1,6 +1,9 @@
 import { BungieApi } from "../bungieapi/BungieApi"
 import ColorCode from '../Color';
 import EmojiHandler from "../EmojiHandler"
+import fs from 'fs';
+let Jimp = require("jimp");
+var text2png = require('text2png');
 
 function GetCharacterInfo(resp)
 {
@@ -69,7 +72,7 @@ async function AddPerks(emoji_handler, perks)
 
 module.exports = {
     name: 'loadout',
-    description: 'FIX ME.',
+    description: 'Displays mentioned users loadout.',
     async execute(message, args, keyv)
     {
         let server_id = message.guild.id;
@@ -79,7 +82,7 @@ module.exports = {
                 color: ColorCode.DEFAULT,
             }
         };
-        
+
         if (message.mentions.members.size != 1)
         {
             info_message.embed.description = "Please @ someone you want to inspect";
@@ -131,54 +134,107 @@ module.exports = {
 
         let emoji_handler = new EmojiHandler(message.guild);
 
-        // TODO (Garrett): For the love of god please stop creating 3 separate messages...
-        const kinetic_message = {
-            embed: {
-                color: ColorCode.DEFAULT,
-                title: "",
-                description: "",
-                thumbnail: {
-                    url: ""
+        const loadout_message = {
+            files: [
+                {
+                    attachment: "", 
+                    name: "kinetic.png"
+                },
+                {
+                    attachment: "", 
+                    name: "energy.png"
+                },
+                {
+                    attachment: "", 
+                    name: "power.png"
                 }
-            }
+            ]
         };
-        kinetic_message.embed.title = kinetic_item_name + " - " + kinetic_item_power + "\n";
-        kinetic_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[kinetic_instance_id].sockets);
-        kinetic_message.embed.thumbnail.url = kinetic_item_icon;
-        kinetic_message.embed.color = ColorCode.WHITE;
-        message.channel.send(kinetic_message);
 
-        const energy_message = {
-            embed: {
-                color: ColorCode.DEFAULT,
-                title: "",
-                description: "",
-                thumbnail: {
-                    url: ""
-                }
-            }
+        let kinetic_template = Jimp.read("exotic_template.png");
+        let energy_template = Jimp.read("exotic_template.png");
+        let power_template = Jimp.read("exotic_template.png");
+        let kinetic_icon = Jimp.read(kinetic_item_icon);
+        let energy_icon = Jimp.read(energy_item_icon);
+        let power_icon = Jimp.read(power_item_icon);
+        let font_options = {
+            color: "white",
+            font: '36px Neue Haas Display Medium',
+            localFontPath: 'NeueHaasDisplay-Mediu.ttf',
+            localFontName: 'NeueHaasDisplay-Mediu'
         };
-        energy_message.embed.title = energy_item_name + " - " + energy_item_power + "\n";
-        energy_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[energy_instance_id].sockets);
-        energy_message.embed.thumbnail.url = energy_item_icon;
-        energy_message.embed.color = ColorCode.GREEN;
-        message.channel.send(energy_message);
-
-        const power_message = {
-            embed: {
-                color: ColorCode.DEFAULT,
-                title: "",
-                description: "",
-                thumbnail: {
-                    url: ""
-                }
-            }
-        };
-        power_message.embed.title = power_item_name + " - " + power_item_power + "\n";
-        power_message.embed.description = await AddPerks(emoji_handler, char.Response.itemComponents.sockets.data[power_instance_id].sockets);
-        power_message.embed.thumbnail.url = power_item_icon;
-        power_message.embed.color = ColorCode.PURPLE;
-        message.channel.send(power_message);
+        fs.writeFileSync("kinetic_text.png", text2png(kinetic_item_name + "\n" + kinetic_item_power, font_options));
+        fs.writeFileSync("energy_text.png", text2png(energy_item_name + "\n" + energy_item_power, font_options));
+        fs.writeFileSync("power_text.png", text2png(power_item_name + "\n" + power_item_power, font_options));
+        let kinetic_text = Jimp.read("kinetic_text.png");
+        let energy_text = Jimp.read("energy_text.png");
+        let power_text = Jimp.read("power_text.png");
+        Promise.all([result_template, kinetic_template, energy_template, power_template, 
+            kinetic_icon, energy_icon, power_icon, 
+            kinetic_text, energy_text, power_text]).then(function (values)
+        {
+            let template_k = values[1];
+            let template_e = values[2];
+            let template_p = values[3];
+            let icon_k = values[4].resize(100, 100);
+            let icon_e = values[5].resize(100, 100);
+            let icon_p = values[6].resize(100, 100);
+            let text_k = values[7];
+            let text_e = values[8];
+            let text_p = values[9];
+            template_k.composite(icon_k, 400, 0, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            template_k.composite(text_k, 10, 10, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            template_e.composite(icon_e, 400, 0, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            template_e.composite(text_e, 10, 10, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            template_p.composite(icon_p, 400, 0, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            template_p.composite(text_p, 10, 10, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 1.0,
+                opacityDest: 1.0
+            });
+            let image_write_promises = [];
+            image_write_promises.push(template_k.write("kinetic_result.png"));
+            image_write_promises.push(template_e.write("energy_result.png"));
+            image_write_promises.push(template_p.write("power_result.png"));
+            Promise.all(image_write_promises).then(images => {
+                loadout_message.files[0].attachment = "kinetic_result.png";
+                loadout_message.files[1].attachment = "energy_result.png";
+                loadout_message.files[2].attachment = "power_result.png";
+                message.channel.send(loadout_message).then(msg => {
+                // fs.unlinkSync("result.png");
+                });
+            });
+        });
+                // let sockets = char.Response.itemComponents.sockets.data[kinetic_instance_id].sockets
+                // for (let socket of sockets)
+                // {
+                //     if (socket.isEnabled == true && socket.isVisible == true)
+                //     {
+                //         let socket_info = BungieApi.Destiny2.getPerkNameAndIcon(perk_hash);
+                //         Jimp.read(socket_info.icon).then(socket_icon => {
+                //         });
+                //     }
+                // }
 
         message.channel.stopTyping();
 
