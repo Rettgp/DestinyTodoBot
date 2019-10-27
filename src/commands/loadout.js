@@ -74,7 +74,7 @@ async function AddSocketsToTemplate(template, sockets)
 
         Promise.all(socket_promises).then(socket_jimps => {
             let x = 125;
-            let y = 110;
+            let y = 95;
             for (let i = 0; i < socket_jimps.length; ++i)
             {
                 template.composite(socket_jimps[i].resize(30, 30), x, y, {
@@ -87,7 +87,7 @@ async function AddSocketsToTemplate(template, sockets)
                 if ((i + 1) % 3 == 0)
                 {
                     x += 60;
-                    y = 110;
+                    y = 95;
                 }
             }
 
@@ -243,7 +243,7 @@ module.exports = {
             let text_p = values[12];
             let text_s_p = values[13];
             let text_l_p = values[14];
-            template_k.composite(icon_k, 400, 0, {
+            template_k.composite(icon_k, 415, 0, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0
@@ -263,7 +263,7 @@ module.exports = {
                 opacitySource: 1.0,
                 opacityDest: 1.0
             });
-            template_e.composite(icon_e, 400, 0, {
+            template_e.composite(icon_e, 415, 0, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0
@@ -283,7 +283,7 @@ module.exports = {
                 opacitySource: 1.0,
                 opacityDest: 1.0
             });
-            template_p.composite(icon_p, 400, 0, {
+            template_p.composite(icon_p, 415, 0, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0
