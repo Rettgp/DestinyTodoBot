@@ -6,7 +6,7 @@ import Keyv from 'keyv';
 const keyv = new Keyv(process.env.PROD_MONGODB);
 const bot_prod_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';
 const bot_dev_id = 'NjI4MjYzMTkxMjY4NDI1NzI4.XZIrQw.3g4G3xw5sRL5FHOrxT-2wNYd3YA';
-const bot_id = process.env.DEV === '1' ? bot_dev_id : bot_prod_id;
+const bot_id = process.env.DEV.toString().trim() === '1' ? bot_dev_id : bot_prod_id;
 
 // Create a Client instance with our bot token.
 const bot = new Discord.Client();

@@ -160,8 +160,12 @@ class Destiny2{
 	{
 		let perk_definition = this.Manifest["en"]["DestinyInventoryItemDefinition"];
 		let perk = perk_definition[String(perk_hash)];
+		let plug = perk.plug;
 		if (perk["displayProperties"]["hasIcon"] == true &&
-			perk["blacklisted"] == false)
+			perk["blacklisted"] == false &&
+			plug != null && 
+			(!plug.plugCategoryIdentifier.includes("enhancement") &&
+			!plug.plugCategoryIdentifier.includes("shader")))
 		{
 			let perk_name_sanitized = "perk_" + 
 				perk["displayProperties"]["name"].replace(/ /g, "_").replace(/-/g, "_").toLowerCase();

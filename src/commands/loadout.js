@@ -65,25 +65,28 @@ async function AddSocketsToTemplate(template, sockets)
             if (socket.isEnabled == true && socket.isVisible == true)
             {
                 let socket_info = BungieApi.Destiny2.getPerkNameAndIcon(socket.plugHash);
-                socket_promises.push(Jimp.read(socket_info.icon));
+                if (socket_info != null)
+                {
+                    socket_promises.push(Jimp.read(socket_info.icon));
+                }
             }
         }
 
         Promise.all(socket_promises).then(socket_jimps => {
-            let x = 200;
+            let x = 125;
             let y = 110;
             for (let i = 0; i < socket_jimps.length; ++i)
             {
-                template.composite(socket_jimps[i].resize(25, 25), x, y, {
+                template.composite(socket_jimps[i].resize(30, 30), x, y, {
                     mode: Jimp.BLEND_SOURCE_OVER,
                     opacitySource: 1.0,
                     opacityDest: 1.0
                 });
 
-                y += 25;
+                y += 30;
                 if ((i + 1) % 3 == 0)
                 {
-                    x += 50;
+                    x += 60;
                     y = 110;
                 }
             }
@@ -185,21 +188,21 @@ module.exports = {
         let power_icon = Jimp.read(power_item_icon);
         let font_options = {
             color: "white",
-            font: '28px Neue Haas Display Medium',
+            font: '28px NeueHaasDisplay',
             localFontPath: 'NeueHaasDisplay-Mediu.ttf',
-            localFontName: 'NeueHaasDisplay-Mediu'
+            localFontName: 'NeueHaasDisplay'
         };
         let sub_font_options = {
             color: "white",
-            font: '18px Neue Haas Display Medium',
+            font: '18px NeueHaasDisplay',
             localFontPath: 'NeueHaasDisplay-Mediu.ttf',
-            localFontName: 'NeueHaasDisplay-Mediu'
+            localFontName: 'NeueHaasDisplay'
         };
         let light_font_options = {
             color: "white",
-            font: '48px Neue Haas Display Bold',
+            font: '48px NeueHaasDisplay',
             localFontPath: 'NeueHaasDisplay-Mediu.ttf',
-            localFontName: 'NeueHaasDisplay-Mediu'
+            localFontName: 'NeueHaasDisplay'
         };
         fs.writeFileSync("kinetic_text.png", text2png(kinetic_item_name, font_options));
         fs.writeFileSync("sub_kinetic_text.png", text2png(`${kinetic_item_type}`, sub_font_options));
@@ -228,9 +231,9 @@ module.exports = {
             let template_k = values[0];
             let template_e = values[1];
             let template_p = values[2];
-            let icon_k = values[3].resize(100, 100);
-            let icon_e = values[4].resize(100, 100);
-            let icon_p = values[5].resize(100, 100);
+            let icon_k = values[3].resize(85, 85);
+            let icon_e = values[4].resize(85, 85);
+            let icon_p = values[5].resize(85, 85);
             let text_k = values[6];
             let text_s_k = values[7];
             let text_l_k = values[8];
@@ -255,7 +258,7 @@ module.exports = {
                 opacitySource: 1.0,
                 opacityDest: 1.0
             });
-            template_k.composite(text_l_k, 10, 110, {
+            template_k.composite(text_l_k, 10, 95, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0
@@ -275,7 +278,7 @@ module.exports = {
                 opacitySource: 1.0,
                 opacityDest: 1.0
             });
-            template_e.composite(text_l_e, 10, 110, {
+            template_e.composite(text_l_e, 10, 95, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0
@@ -295,7 +298,7 @@ module.exports = {
                 opacitySource: 1.0,
                 opacityDest: 1.0
             });
-            template_p.composite(text_l_p, 10, 110, {
+            template_p.composite(text_l_p, 10, 95, {
                 mode: Jimp.BLEND_SOURCE_OVER,
                 opacitySource: 1.0,
                 opacityDest: 1.0

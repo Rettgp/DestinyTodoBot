@@ -22,7 +22,7 @@ export default class WebhookListener
     constructor(keyv)
     {
         this.keyv = keyv;
-        if (process.env.DEV === '1')
+        if (process.env.DEV.toString().trim() === '1')
         {
             https.createServer({
                 key: fs.readFileSync(__dirname + '/server.key'),
@@ -63,7 +63,7 @@ export default class WebhookListener
                 this.message.channel.send(`Thank you ${this.message.author.username}!`);
             });
         });
-        if (process.env.DEV !== '1')
+        if (process.env.DEV.toString().trim() !== '1')
         {
             app.listen(PORT);
         }
