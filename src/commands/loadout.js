@@ -1,10 +1,12 @@
 import { BungieApi } from "../bungieapi/BungieApi"
 import ColorCode from '../Color';
 import fs from 'fs';
+const path = require('path');
 import { rejects } from "assert";
 import { resolve } from "path";
 let Jimp = require("jimp");
 var text2png = require('text2png');
+const tmp_asset_dir = "./assets/tmp";
 
 function GetCharacterInfo(resp)
 {
@@ -58,6 +60,12 @@ function GetCharacterPower(resp)
 
 async function AddSocketsToTemplate(template, sockets)
 {
+    let font_options = {
+        color: "white",
+        font: '12px NeueHaasDisplay',
+        localFontPath: './assets/NeueHaasDisplay-Mediu.ttf',
+        localFontName: 'NeueHaasDisplay'
+    };
     return new Promise((resolve, reject) => {
         let socket_promises = [];
         for (let socket of sockets)
@@ -68,25 +76,32 @@ async function AddSocketsToTemplate(template, sockets)
                 if (socket_info != null)
                 {
                     socket_promises.push(Jimp.read(socket_info.icon));
+                    fs.writeFileSync(`${tmp_asset_dir}/${socket_info.name}_text.png`, text2png(`${socket_info.display}`, font_options));
+                    socket_promises.push(Jimp.read(`${tmp_asset_dir}/${socket_info.name}_text.png`));
                 }
             }
         }
 
         Promise.all(socket_promises).then(socket_jimps => {
-            let x = 125;
+            let x = 110;
             let y = 95;
-            for (let i = 0; i < socket_jimps.length; ++i)
+            for (let i = 0; i < socket_jimps.length; i+=2)
             {
                 template.composite(socket_jimps[i].resize(30, 30), x, y, {
                     mode: Jimp.BLEND_SOURCE_OVER,
                     opacitySource: 1.0,
                     opacityDest: 1.0
                 });
+                template.composite(socket_jimps[i+1], x + 35, y + 9, {
+                    mode: Jimp.BLEND_SOURCE_OVER,
+                    opacitySource: 1.0,
+                    opacityDest: 1.0
+                });
 
                 y += 30;
-                if ((i + 1) % 3 == 0)
+                if ((i + 2) % 6 == 0)
                 {
-                    x += 60;
+                    x += 190;
                     y = 95;
                 }
             }
@@ -96,6 +111,47 @@ async function AddSocketsToTemplate(template, sockets)
             reject(e);
         });
     })
+}
+
+async function CompositeWeaponTemplate(template, icon, name_text, type_text, light)
+{
+    template.composite(icon, 415, 0, {
+        mode: Jimp.BLEND_SOURCE_OVER,
+        opacitySource: 1.0,
+        opacityDest: 1.0
+    });
+    template.composite(name_text, 10, 10, {
+        mode: Jimp.BLEND_SOURCE_OVER,
+        opacitySource: 1.0,
+        opacityDest: 1.0
+    });
+    template.composite(type_text, 10, 45, {
+        mode: Jimp.BLEND_SOURCE_OVER,
+        opacitySource: 1.0,
+        opacityDest: 1.0
+    });
+    template.composite(light, 10, 95, {
+        mode: Jimp.BLEND_SOURCE_OVER,
+        opacitySource: 1.0,
+        opacityDest: 1.0
+    });
+
+    return template;
+}
+
+function CleanupTmpDir()
+{
+    fs.readdir(tmp_asset_dir, (err, files) =>
+    {
+        if (err) throw err;
+        for (const file of files)
+        {
+            fs.unlinkSync(path.join(tmp_asset_dir, file), err =>
+            {
+                if (err) throw err;
+            });
+        }
+    });
 }
 
 module.exports = {
@@ -110,6 +166,9 @@ module.exports = {
                 color: ColorCode.DEFAULT,
             }
         };
+        if (!fs.existsSync(tmp_asset_dir)){
+            fs.mkdirSync(tmp_asset_dir);
+        }
 
         if (message.mentions.members.size != 1)
         {
@@ -180,53 +239,51 @@ module.exports = {
             ]
         };
 
-        let kinetic_template = Jimp.read(`${kinetic_tier}_template.png`);
-        let energy_template = Jimp.read(`${energy_tier}_template.png`);
-        let power_template = Jimp.read(`${power_tier}_template.png`);
-        let kinetic_icon = Jimp.read(kinetic_item_icon);
-        let energy_icon = Jimp.read(energy_item_icon);
-        let power_icon = Jimp.read(power_item_icon);
         let font_options = {
             color: "white",
             font: '28px NeueHaasDisplay',
-            localFontPath: 'NeueHaasDisplay-Mediu.ttf',
+            localFontPath: './assets/NeueHaasDisplay-Mediu.ttf',
             localFontName: 'NeueHaasDisplay'
         };
         let sub_font_options = {
             color: "white",
             font: '18px NeueHaasDisplay',
-            localFontPath: 'NeueHaasDisplay-Mediu.ttf',
+            localFontPath: './assets/NeueHaasDisplay-Mediu.ttf',
             localFontName: 'NeueHaasDisplay'
         };
         let light_font_options = {
             color: "white",
             font: '48px NeueHaasDisplay',
-            localFontPath: 'NeueHaasDisplay-Mediu.ttf',
+            localFontPath: './assets/NeueHaasDisplay-Mediu.ttf',
             localFontName: 'NeueHaasDisplay'
         };
-        fs.writeFileSync("kinetic_text.png", text2png(kinetic_item_name, font_options));
-        fs.writeFileSync("sub_kinetic_text.png", text2png(`${kinetic_item_type}`, sub_font_options));
-        fs.writeFileSync("light_kinetic_text.png", text2png(`${kinetic_item_power}`, light_font_options));
-        fs.writeFileSync("energy_text.png", text2png(energy_item_name, font_options));
-        fs.writeFileSync("sub_energy_text.png", text2png(`${energy_item_type}`, sub_font_options));
-        fs.writeFileSync("light_energy_text.png", text2png(`${energy_item_power}`, light_font_options));
-        fs.writeFileSync("power_text.png", text2png(power_item_name, font_options));
-        fs.writeFileSync("sub_power_text.png", text2png(`${power_item_type}`, sub_font_options));
-        fs.writeFileSync("light_power_text.png", text2png(`${power_item_power}`, light_font_options));
-        let kinetic_text = Jimp.read("kinetic_text.png");
-        let energy_text = Jimp.read("energy_text.png");
-        let power_text = Jimp.read("power_text.png");
-        let sub_kinetic_text = Jimp.read("sub_kinetic_text.png");
-        let sub_energy_text = Jimp.read("sub_energy_text.png");
-        let sub_power_text = Jimp.read("sub_power_text.png");
-        let light_kinetic_text = Jimp.read("light_kinetic_text.png");
-        let light_energy_text = Jimp.read("light_energy_text.png");
-        let light_power_text = Jimp.read("light_power_text.png");
-        Promise.all([kinetic_template, energy_template, power_template, 
-            kinetic_icon, energy_icon, power_icon, 
-            kinetic_text, sub_kinetic_text, light_kinetic_text,
-            energy_text, sub_energy_text, light_energy_text,
-            power_text, sub_power_text, light_power_text]).then(async function (values)
+        fs.writeFileSync(`${tmp_asset_dir}/kinetic_text.png`, text2png(kinetic_item_name, font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_kinetic_text.png`, text2png(`${kinetic_item_type}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_kinetic_text.png`, text2png(`${kinetic_item_power}`, light_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/energy_text.png`, text2png(energy_item_name, font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_energy_text.png`, text2png(`${energy_item_type}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_energy_text.png`, text2png(`${energy_item_power}`, light_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/power_text.png`, text2png(power_item_name, font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_power_text.png`, text2png(`${power_item_type}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_power_text.png`, text2png(`${power_item_power}`, light_font_options));
+        let read_promises = [
+            Jimp.read(`./assets/${kinetic_tier}_template.png`),
+            Jimp.read(`./assets/${energy_tier}_template.png`),
+            Jimp.read(`./assets/${power_tier}_template.png`),
+            Jimp.read(kinetic_item_icon),
+            Jimp.read(energy_item_icon),
+            Jimp.read(power_item_icon),
+            Jimp.read(`${tmp_asset_dir}/kinetic_text.png`),
+            Jimp.read(`${tmp_asset_dir}/sub_kinetic_text.png`),
+            Jimp.read(`${tmp_asset_dir}/light_kinetic_text.png`),
+            Jimp.read(`${tmp_asset_dir}/energy_text.png`),
+            Jimp.read(`${tmp_asset_dir}/sub_energy_text.png`),
+            Jimp.read(`${tmp_asset_dir}/light_energy_text.png`),
+            Jimp.read(`${tmp_asset_dir}/power_text.png`),
+            Jimp.read(`${tmp_asset_dir}/sub_power_text.png`),
+            Jimp.read(`${tmp_asset_dir}/light_power_text.png`)
+        ];
+        Promise.all(read_promises).then(async function (values)
         {
             let template_k = values[0];
             let template_e = values[1];
@@ -243,66 +300,9 @@ module.exports = {
             let text_p = values[12];
             let text_s_p = values[13];
             let text_l_p = values[14];
-            template_k.composite(icon_k, 415, 0, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_k.composite(text_k, 10, 10, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_k.composite(text_s_k, 10, 45, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_k.composite(text_l_k, 10, 95, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_e.composite(icon_e, 415, 0, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_e.composite(text_e, 10, 10, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_e.composite(text_s_e, 10, 45, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_e.composite(text_l_e, 10, 95, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_p.composite(icon_p, 415, 0, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_p.composite(text_p, 10, 10, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_p.composite(text_s_p, 10, 45, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
-            template_p.composite(text_l_p, 10, 95, {
-                mode: Jimp.BLEND_SOURCE_OVER,
-                opacitySource: 1.0,
-                opacityDest: 1.0
-            });
+            template_k = await CompositeWeaponTemplate(template_k, icon_k, text_k, text_s_k, text_l_k);
+            template_e = await CompositeWeaponTemplate(template_e, icon_e, text_e, text_s_e, text_l_e);
+            template_p = await CompositeWeaponTemplate(template_p, icon_p, text_p, text_s_p, text_l_p);
 
             let kinetic_sockets = char.Response.itemComponents.sockets.data[kinetic_instance_id].sockets;
             let energy_sockets = char.Response.itemComponents.sockets.data[energy_instance_id].sockets;
@@ -313,15 +313,15 @@ module.exports = {
             template_p = await AddSocketsToTemplate(template_p, power_sockets);
 
             let image_write_promises = [];
-            image_write_promises.push(template_k.write("kinetic_result.png"));
-            image_write_promises.push(template_e.write("energy_result.png"));
-            image_write_promises.push(template_p.write("power_result.png"));
+            image_write_promises.push(template_k.write(`${tmp_asset_dir}/kinetic_result.png`));
+            image_write_promises.push(template_e.write(`${tmp_asset_dir}/energy_result.png`));
+            image_write_promises.push(template_p.write(`${tmp_asset_dir}/power_result.png`));
             Promise.all(image_write_promises).then(images => {
-                loadout_message.files[0].attachment = "kinetic_result.png";
-                loadout_message.files[1].attachment = "energy_result.png";
-                loadout_message.files[2].attachment = "power_result.png";
+                loadout_message.files[0].attachment = `${tmp_asset_dir}/kinetic_result.png`;
+                loadout_message.files[1].attachment = `${tmp_asset_dir}/energy_result.png`;
+                loadout_message.files[2].attachment = `${tmp_asset_dir}/power_result.png`;
                 message.channel.send(loadout_message).then(msg => {
-                // fs.unlinkSync("result.png");
+                    CleanupTmpDir();
                 });
             });
         });

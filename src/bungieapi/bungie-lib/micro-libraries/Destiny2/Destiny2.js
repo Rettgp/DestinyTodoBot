@@ -165,14 +165,19 @@ class Destiny2{
 			perk["blacklisted"] == false &&
 			plug != null && 
 			(!plug.plugCategoryIdentifier.includes("enhancement") &&
-			!plug.plugCategoryIdentifier.includes("shader")))
+			!plug.plugCategoryIdentifier.includes("shader") && 
+			!plug.plugCategoryIdentifier.includes("masterwork") && 
+			!plug.plugCategoryIdentifier.includes("mod") && 
+			!plug.plugCategoryIdentifier.includes("tracker") &&
+			!plug.plugCategoryIdentifier.includes("skin")))
 		{
 			let perk_name_sanitized = "perk_" + 
 				perk["displayProperties"]["name"].replace(/ /g, "_").replace(/-/g, "_").toLowerCase();
 			let perk_icon_location = "https://www.bungie.net" + perk["displayProperties"]["icon"];
 			let perk_info = {
 				name: perk_name_sanitized,
-				icon: perk_icon_location
+				icon: perk_icon_location,
+				display: perk["displayProperties"]["name"]
 			}
 			return perk_info;
 		}
