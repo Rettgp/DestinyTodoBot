@@ -1,6 +1,7 @@
 
 import Discord from 'discord.js';
 import TodoList from './TodoList'
+import TodoQuery from './TodoQuery'
 
 export default class ReactionHandler
 {
@@ -28,28 +29,32 @@ export default class ReactionHandler
             return;
         }
 
+        let new_embed = reaction.message.embeds[0];
         if (reaction.emoji.name === "❌")
         {
             if ( todo_entry !== undefined )
             {
-                this.Remove(todo_list, todo_key, user);
+                if(this.Remove(todo_list, todo_key, user))
+                {
+                    let lines = new_embed.title.split("\n");
+                    lines = lines.filter(line => !line.includes(user.username));
+                    new_embed.title = lines.join("\n");
+                }
             }
         }
         if (reaction.emoji.name === "✅")
         {
             if ( todo_entry !== undefined )
             {
-                this.Accept(todo_list, todo_key, user);
+                if (this.Accept(todo_list, todo_key, user))
+                {
+                    let todo_query = new TodoQuery(reaction.message, todo_list, this.keyv );
+                    let flavor_text = await todo_query.GetFlavorTextForUser(server_id, user.id, todo_key, todo_entry.Type());
+                    new_embed.title += `\n${user.username} - ${flavor_text}`;
+                }
             }
         }
 
-        let new_embed = reaction.message.embeds[0];
-        new_embed.title = "";
-        for (let participant of todo_entry.Participants())
-        {
-            // TODO (Garrett): Trailing comma
-            new_embed.title += `\n${participant}`;
-        }
         reaction.message.edit(new Discord.RichEmbed(new_embed));
 
         if (todo_entry.Participants().length <= 0)
@@ -68,7 +73,10 @@ export default class ReactionHandler
         {
             todo_entry.AddParticipant( user.username );
             todo_list.SetTodoEntry(todo_key, todo_entry);
+            return true;
         }
+
+        return false;
     }
 
     Remove(todo_list, todo_key, user)
@@ -79,6 +87,9 @@ export default class ReactionHandler
         {
             todo_entry.RemoveParticipant( user.username );
             todo_list.SetTodoEntry(todo_key, todo_entry);
+            return true;
         }
+
+        return false;
     }
 }

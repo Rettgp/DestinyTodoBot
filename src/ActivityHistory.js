@@ -61,8 +61,6 @@ export default class ActivityHistory
                 }
                 let last_tuesday = Date.parse(new Date(now.getFullYear(), now.getMonth(), now.getDate() - days_into_weekly_reset, 9));
 
-                console.log("Last tuesday: " + last_tuesday);
-                console.log("last_played: " + date_last_played);
                 if (date_last_played > last_tuesday)
                 {
                     completed = this.complete;
