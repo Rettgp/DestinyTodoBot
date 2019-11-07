@@ -187,7 +187,6 @@ module.exports = {
             return;
         }
 
-        message.channel.startTyping();
         let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
@@ -325,7 +324,6 @@ module.exports = {
                 });
             });
         });
-        message.channel.stopTyping();
         return;
     },
 };
