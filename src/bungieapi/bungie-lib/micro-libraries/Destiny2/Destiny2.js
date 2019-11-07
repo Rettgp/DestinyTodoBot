@@ -26,7 +26,6 @@ class Destiny2{
 			"DestinyClassDefinition",
 			"DestinyActivityDefinition",
 			"DestinyActivityTypeDefinition",
-			"DestinyInventoryItemDefinition"
 		]
 
 		this.json_stream.on('data', ({ key, value }) =>
@@ -137,6 +136,16 @@ class Destiny2{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["displayProperties"]["name"];
 	}
 
+	getManifestItemTierName(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["inventory"]["tierTypeName"];
+	}
+
+	getManifestItemTypeDisplayName(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["itemTypeDisplayName"];
+	}
+
 	getManifestClassName(classHash)
 	{
 		return this.Manifest["en"]["DestinyClassDefinition"][String(classHash)]["displayProperties"]["name"];
@@ -151,15 +160,24 @@ class Destiny2{
 	{
 		let perk_definition = this.Manifest["en"]["DestinyInventoryItemDefinition"];
 		let perk = perk_definition[String(perk_hash)];
+		let plug = perk.plug;
 		if (perk["displayProperties"]["hasIcon"] == true &&
-			perk["blacklisted"] == false)
+			perk["blacklisted"] == false &&
+			plug != null && 
+			(!plug.plugCategoryIdentifier.includes("enhancement") &&
+			!plug.plugCategoryIdentifier.includes("shader") && 
+			!plug.plugCategoryIdentifier.includes("masterwork") && 
+			!plug.plugCategoryIdentifier.includes("mod") && 
+			!plug.plugCategoryIdentifier.includes("tracker") &&
+			!plug.plugCategoryIdentifier.includes("skin")))
 		{
 			let perk_name_sanitized = "perk_" + 
 				perk["displayProperties"]["name"].replace(/ /g, "_").replace(/-/g, "_").toLowerCase();
 			let perk_icon_location = "https://www.bungie.net" + perk["displayProperties"]["icon"];
 			let perk_info = {
 				name: perk_name_sanitized,
-				icon: perk_icon_location
+				icon: perk_icon_location,
+				display: perk["displayProperties"]["name"]
 			}
 			return perk_info;
 		}

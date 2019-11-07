@@ -12,6 +12,6 @@ const ApiCredentials_PROD = {
 
 const BungieLib = require('./bungie-lib/main.js');
 
-let api_creds = process.env.DEV === '1' ? ApiCredentials_DEV : ApiCredentials_PROD;
+let api_creds = process.env.DEV.toString().trim() === '1' ? ApiCredentials_DEV : ApiCredentials_PROD;
 // This will load ALL micro-libraries
 export const BungieApi = new BungieLib(api_creds, ["user", "destiny2"]);
