@@ -20,6 +20,7 @@ let ColorCode = {
     DARK_GREY: 9936031,
     LIGHT_GREY: 12370112,
     DARK_NAVY: 2899536,
+    ULTRA_VIOLET: 5308568,
 };
 
 export default ColorCode;
