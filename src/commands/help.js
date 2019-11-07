@@ -9,34 +9,40 @@ module.exports = {
     {
         const info_message = {
             embed: {
-                description: "Rasputin Command Help",
+                title: "Rasputin Help",
+                description: "All commands must lead with a '!'",
                 color: ColorCode.DEFAULT,
                 fields: [
                     {
-                        name: '!todo <item> <Optional:(Date to Run Activity)>',
-                        value: 'Add an item to do and when to do it in "()"'
+                        name: 'Commands',
+                        value: 
+                        '!authorize\n'+
+                        '!loadout <@username>\n' +
+                        '!todo <item> <(date)>\n' +
+                        '!todos\n' +
+                        '!complete <item>\n',
+                        inline: true
                     },
                     {
-                        name: '!todos',
-                        value: 'Query all todo items'
+                        name: 'Description',
+                        value: 
+                        'Allow Rasputin to access your character information\n' +
+                        'Query a users current loadout\n' +
+                        'Add an item to do and when to do it in "( )"\n' +
+                        'Query all todo items\n' +
+                        'Mark a todo as completed\n',
+                        inline: true
                     },
                     {
-                        name: '!complete <item>',
-                        value: 'Mark a todo as completed'
-                    },
-                    {
-                        name: '!authorize',
-                        value: 'Allow Rasputin to access your character information'
-                    },
-                    {
-                        name: '!loadout <@username>',
-                        value: 'Query a users current loadout'
+                        name: 'Example Command',
+                        value: '!todo Garden of Salvation (Saturday Night)\n',
+                        inline: false
                     }
                 ],
             }
         };
 
-        info_message.embed.color = ColorCode.PURPLE;
+        info_message.embed.color = ColorCode.ULTRA_VIOLET;
         message.channel.send(info_message);
         return;
     },
