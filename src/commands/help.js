@@ -4,12 +4,12 @@ import ColorCode from '../Color';
 
 module.exports = {
     name: 'help',
-    description: 'DestinyTodoBot Help.',
+    description: 'Rasputin Help.',
     async execute(message, args, keyv)
     {
         const info_message = {
             embed: {
-                description: "DestinyTodoBot Commands Help",
+                description: "Rasputin Command Help",
                 color: ColorCode.DEFAULT,
                 fields: [
                     {
