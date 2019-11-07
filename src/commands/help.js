@@ -13,8 +13,8 @@ module.exports = {
                 color: ColorCode.DEFAULT,
                 fields: [
                     {
-                        name: '!todo <item>',
-                        value: 'Add an item to do'
+                        name: '!todo <item> <Optional:(Date to Run Activity)>',
+                        value: 'Add an item to do and when to do it in "()"'
                     },
                     {
                         name: '!todos',
@@ -23,6 +23,14 @@ module.exports = {
                     {
                         name: '!complete <item>',
                         value: 'Mark a todo as completed'
+                    },
+                    {
+                        name: '!authorize',
+                        value: 'Allow Rasputin to access your character information'
+                    },
+                    {
+                        name: '!loadout <@username>',
+                        value: 'Query a users current loadout'
                     }
                 ],
             }
