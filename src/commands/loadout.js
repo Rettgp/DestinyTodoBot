@@ -58,6 +58,21 @@ function GetCharacterPower(resp)
     return [item_name, item_icon, item_power, tier, item_type, item_instance_id];
 }
 
+async function RequestCharacter(options)
+{
+    let resp = "";
+    try
+    {
+        resp = await BungieApi.Destiny2.getCharacter(options);
+    } 
+    catch (e)
+    {
+        return [false, "Character Privacy/Authorize Error"];
+    } 
+
+    return [true, resp];
+}
+
 async function AddSocketsToTemplate(template, sockets)
 {
     let font_options = {
@@ -201,7 +216,14 @@ module.exports = {
                 mType: membership_type,
                 components: ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"]
             }
-            let char_response = await BungieApi.Destiny2.getCharacter(options);
+            let [valid, char_response] = await RequestCharacter(options);
+            if (!valid)
+            {
+                info_message.embed.description = `${char_response}`;
+                info_message.embed.color = ColorCode.RED;
+                message.channel.send(info_message);
+                return;
+            }
 
             let date_last_played = Date.parse(char_response.Response.character.data.dateLastPlayed);
             if (date_last_played > date_time)
