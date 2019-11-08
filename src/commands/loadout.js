@@ -170,18 +170,17 @@ module.exports = {
             fs.mkdirSync(tmp_asset_dir);
         }
 
-        if (message.mentions.members.size != 1)
+        let user_key = message.author;
+        
+        if (message.mentions.members.size === 1)
         {
-            info_message.embed.description = "Please @ someone you want to inspect";
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
-            return;
+            user_key = message.mentions.members.first().user;
         }
 
-        let discord_destiny_profile_json = await keyv.get(server_id + "-" + message.mentions.members.first().id);
+        let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
         if (discord_destiny_profile_json === undefined)
         {
-            info_message.embed.description = `${message.mentions.members.first().user.username} has not authorized me yet :(`
+            info_message.embed.description = `${user_key.username} has not authorized me yet :(`
             info_message.embed.color = ColorCode.RED;
             message.channel.send(info_message);
             return;
