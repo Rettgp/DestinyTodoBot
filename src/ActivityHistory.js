@@ -17,11 +17,6 @@ export default class ActivityHistory
 
     async History(destiny_membership_id, membership_type, character_id, activity_string, activity_mode)
     {
-        if (activity_mode.length == 0 || activity_mode == 0)
-        {
-            return  "";
-        }
-
         let options = {
             page: 0,
             mode: await BungieApi.Destiny2.findActivityMode(activity_mode),
@@ -34,7 +29,7 @@ export default class ActivityHistory
         let history_resp = await BungieApi.Destiny2.getActivityHistory(options);
         if (history_resp.Response.activities === undefined)
         {
-            return "";
+            return " ";
         }
 
         let char_options = {
@@ -67,6 +62,6 @@ export default class ActivityHistory
                 }
             }
         }
-        return char_class + " " + completed;
+        return char_class + completed;
     }
 }
