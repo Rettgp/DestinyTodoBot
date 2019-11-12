@@ -30,15 +30,14 @@ export default class ReactionHandler
         }
 
         let new_embed = reaction.message.embeds[0];
+
         if (reaction.emoji.name === "❌")
         {
             if ( todo_entry !== undefined )
             {
                 if(this.Remove(todo_list, todo_key, user))
                 {
-                    let lines = new_embed.title.split("\n");
-                    lines = lines.filter(line => !line.includes(user.username));
-                    new_embed.title = lines.join("\n");
+                    new_embed.fields.splice(new_embed.fields.indexOf(user.username),1);
                 }
             }
         }
@@ -50,7 +49,7 @@ export default class ReactionHandler
                 {
                     let todo_query = new TodoQuery(reaction.message, todo_list, this.keyv );
                     let flavor_text = await todo_query.GetFlavorTextForUser(server_id, user.id, todo_key, todo_entry.Type());
-                    new_embed.title += `\n${user.username} - ${flavor_text}`;
+                    new_embed.fields.push({ name: `${user.username}`, value: `${flavor_text}` });
                 }
             }
         }
