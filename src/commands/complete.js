@@ -13,6 +13,7 @@ module.exports = {
             embed: {
                 description: "",
                 color: ColorCode.DEFAULT,
+                fields: [],
             }
         };
 
@@ -40,7 +41,12 @@ module.exports = {
             }
             else
             {
-                info_message.embed.description = `${todo_name} does not exist. Please check your todos.`
+                info_message.embed.description = `${todo_name} does not exist. Please check current Todos:`
+                for (let [key, value] of todo_list.GetTodos())
+                {
+                    info_message.embed.fields.push({ name: `Todo:`, value: `${key}` });
+                }
+                
                 info_message.embed.color = ColorCode.DARK_RED;
                 message.channel.send(info_message);
                 return;
