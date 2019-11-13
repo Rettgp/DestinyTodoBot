@@ -37,8 +37,8 @@ export default class ReactionHandler
             {
                 if(this.Remove(todo_list, todo_key, user))
                 {
-                    const result = new_embed.fields.filter(field => field.name !== user.username);
-                    new_embed.fields = result;
+                    let modified_fields = new_embed.fields.filter(field => field.name !== user.username);
+                    new_embed.fields = modified_fields;
                 }
             }
         }
