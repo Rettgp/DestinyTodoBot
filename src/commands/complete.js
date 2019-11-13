@@ -40,7 +40,7 @@ module.exports = {
             }
             else
             {
-                info_message.embed.description = todo_name + ` does not exist. Please check your todos.`
+                info_message.embed.description = `${todo_name} does not exist. Please check your todos.`
                 info_message.embed.color = ColorCode.DARK_RED;
                 message.channel.send(info_message);
                 return;
@@ -49,6 +49,12 @@ module.exports = {
             if (todo_list.GetTodos().size < 1)
             {
                 info_message.embed.description = `All Todo tasks have been completed.`
+                info_message.embed.color = ColorCode.GREEN;
+                message.channel.send(info_message);
+            }
+            else
+            {
+                info_message.embed.description = `${todo_name} task has been completed.`
                 info_message.embed.color = ColorCode.GREEN;
                 message.channel.send(info_message);
             }
