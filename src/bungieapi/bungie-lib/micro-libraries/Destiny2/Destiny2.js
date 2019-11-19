@@ -26,6 +26,7 @@ class Destiny2{
 			"DestinyClassDefinition",
 			"DestinyActivityDefinition",
 			"DestinyActivityTypeDefinition",
+			"DestinyProgressionDefinition",
 		]
 
 		this.json_stream.on('data', ({ key, value }) =>
@@ -183,6 +184,11 @@ class Destiny2{
 		}
 
 		return null;
+	}
+
+	getManifestProgressionDisplayUnitsName(hash)
+	{
+		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["displayProperties"];
 	}
 
 	findActivityMode(activity_string)
