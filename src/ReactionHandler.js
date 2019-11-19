@@ -37,7 +37,8 @@ export default class ReactionHandler
             {
                 if(this.Remove(todo_list, todo_key, user))
                 {
-                    new_embed.fields.splice(new_embed.fields.indexOf(user.username),1);
+                    let modified_fields = new_embed.fields.filter(field => field.name !== user.username);
+                    new_embed.fields = modified_fields;
                 }
             }
         }
