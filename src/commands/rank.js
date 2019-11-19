@@ -28,21 +28,32 @@ module.exports = {
             user_key = message.mentions.members.first().user;
         }
 
-        let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
-        if (discord_destiny_profile_json === undefined)
-        {
-            info_message.embed.description = `${user_key.username} has not authorized me yet :(`
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
-            return;
+        return console.log(`not quite implemented yet, early return to avoid badness`);
+
+        // let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
+        // if (discord_destiny_profile_json === undefined)
+        // {
+        //     info_message.embed.description = `${user_key.username} has not authorized me yet :(`
+        //     info_message.embed.color = ColorCode.RED;
+        //     message.channel.send(info_message);
+        //     return;
+        // }
+
+        // let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
+        // let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
+        // let membership_type = discord_destiny_profile.membership_type;
+
+        let group_type = BungieApi.Destiny2.Enums.destinyStatsGroupType.GENERAL;
+        console.log(`group_type: ${group_type}`);
+
+        let options = {
+            membershipId: 4611686018436072003,
+            mType: 2,
+            groups: group_type,
         }
 
-        let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
-        let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
-        let membership_type = discord_destiny_profile.membership_type;
-        
-        
-
+        let acct_stats = await BungieApi.Destiny2.getHistoricalStatsForAccount(options);
+        console.log(`acct_stats: ${acct_stats.mergedAllCharacters.results.allTime.basic}`);
         return;
     },
 };
