@@ -1,4 +1,4 @@
-import { BungieApi } from "../bungieapi/BungieApi"
+import { BungieApi } from "./bungieapi/BungieApi"
 
 export class Perk
 {
@@ -6,12 +6,14 @@ export class Perk
     {
         this.hash = hash;
         this.name = "";
+        this.file_name = "";
         this.icon = "";
         let socket_info = BungieApi.Destiny2.getPerkNameAndIcon(this.hash);
         if (socket_info != null)
         {
-            this.name = socket_info.name;
+            this.name = socket_info.display;
             this.icon = socket_info.icon;
+            this.file_name = socket_info.name
         }
 
         this.is_enabled = enabled;
@@ -26,6 +28,11 @@ export class Perk
     DisplayName()
     {
         return this.name;
+    }
+
+    FileName()
+    {
+        return this.file_name;
     }
 
     Enabled()
