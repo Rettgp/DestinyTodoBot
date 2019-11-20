@@ -74,7 +74,6 @@ class Destiny2{
 
 		return Util.promisify( Fs.readdir )( startPath ).then( files => {
 			this.manifestFiles = files;
-			let readFile = Util.promisify( Fs.readFile );
 			let proms = [];
 			files.forEach( file => {
 				// Each manifest file is named lang.json. For instance the 'en' manifest JSON file is named en.json.
@@ -154,7 +153,13 @@ class Destiny2{
 
 	getManifestActivityName(activityHash)
 	{
-		return this.Manifest["en"]["DestinyActivityDefinition"][String(activityHash)]["originalDisplayProperties"]["name"];
+		let activity_def = this.Manifest["en"]["DestinyActivityDefinition"][String(activityHash)];
+		if ( activity_def === undefined )
+		{
+			return "-";
+		}
+
+		return activity_def["originalDisplayProperties"]["name"];
 	}
 
 	getPerkNameAndIcon(perk_hash)

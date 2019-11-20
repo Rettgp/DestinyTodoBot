@@ -15,7 +15,8 @@ export class Character
         }
         this.char_resp = "";
         this.valid = false;
-        this.execption_message
+        this.execption_message = "";
+        this.activities = [];
     }
 
     async Request()
@@ -39,6 +40,37 @@ export class Character
         this.last_played = Date.parse(this.char_resp.character.data.dateLastPlayed);
         this.valid = true;
         return [true, "Success"];
+    }
+
+    async RequestActivityHistory()
+    {
+        let options = {
+            page: 0,
+            mode: "NONE",
+            count: 100, //TODO (Garrett): Is this too small or too big?
+            characterId: this.char_options.characterId,
+            destinyMembershipId: this.char_options.membershipId,
+            membershipType: this.char_options.mType
+        }
+        let resp = "";
+        try
+        {
+            resp = await BungieApi.Destiny2.getActivityHistory(options);
+        } 
+        catch (e)
+        {
+            this.valid = false;
+            this.execption_message = e.Message;
+            return [false, e.Message];
+        } 
+
+        this.activities = resp.Response.activities;
+        return [true, "Success"];
+    }
+
+    ActivityHistory()
+    {
+        return this.activities;
     }
 
     ExceptionMessage()
