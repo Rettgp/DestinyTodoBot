@@ -1,4 +1,5 @@
 import { BungieApi } from "../bungieapi/BungieApi"
+import { Character } from "./CharacterInfo.js"
 import ColorCode from '../Color';
 import fs from 'fs';
 const path = require('path');
@@ -205,18 +206,16 @@ module.exports = {
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
         let characters = discord_destiny_profile.characters.split(",");
-        let char = {};
+        let latest_char = {};
         let date_time = 0;
+        let characters = []
         for (let char_id of characters)
         {
-            let options = {
-                characterId: char_id,
-                membershipId: destiny_membership_id,
-                mType: membership_type,
-                components: ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"]
-            }
-            let [valid, char_response] = await RequestCharacter(options);
-            if (!valid)
+            let components = ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"];
+            let character = new Character(char_id, membership_type, destiny_membership_id, components);
+            await character.Request();
+
+            if (!character.Valid())
             {
                 info_message.embed.description = `${char_response}`;
                 info_message.embed.color = ColorCode.RED;
@@ -224,23 +223,17 @@ module.exports = {
                 return;
             }
 
-            let date_last_played = Date.parse(char_response.Response.character.data.dateLastPlayed);
+            characters.push(character)
+
+            let date_last_played = character.LastPlayed();
             if (date_last_played > date_time)
             {
-                char = char_response
+                latest_char = character;
                 date_time = date_last_played;
             }
         }
         
-        let [char_class, char_light] = GetCharacterInfo(char);
-        message.channel.send(char_class + " - " + char_light);
-
-        let [kinetic_item_name, kinetic_item_icon, 
-            kinetic_item_power, kinetic_tier, kinetic_item_type, kinetic_instance_id] = GetCharacterKinetic(char);
-        let [energy_item_name, energy_item_icon, 
-            energy_item_power, energy_tier, energy_item_type, energy_instance_id] = GetCharacterEnergy(char);
-        let [power_item_name, power_item_icon, 
-            power_item_power, power_tier, power_item_type, power_instance_id] = GetCharacterPower(char);
+        message.channel.send(latest_char.Class() + " - " + latest_char.Power());
 
         const loadout_message = {
             files: [
@@ -277,6 +270,9 @@ module.exports = {
             localFontPath: './assets/NeueHaasDisplay-Mediu.ttf',
             localFontName: 'NeueHaasDisplay'
         };
+
+        // let char_loadout = latest_char.Loadout();
+
         fs.writeFileSync(`${tmp_asset_dir}/kinetic_text.png`, text2png(kinetic_item_name, font_options));
         fs.writeFileSync(`${tmp_asset_dir}/sub_kinetic_text.png`, text2png(`${kinetic_item_type}`, sub_font_options));
         fs.writeFileSync(`${tmp_asset_dir}/light_kinetic_text.png`, text2png(`${kinetic_item_power}`, light_font_options));
