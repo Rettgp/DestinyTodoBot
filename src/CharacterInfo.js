@@ -1,11 +1,12 @@
-import { BungieApi } from "../bungieapi/BungieApi"
+import { BungieApi } from "./bungieapi/BungieApi"
 import { EquippableItem } from "./Item.js"
 let ASSERT = require("assert");
 
-export default class Character
+export class Character
 {
     constructor(char_id, membership_type, membership_id, components = ["CHARACTERS"])
     {
+        this.char_components = components;
         this.char_options = {
             characterId: char_id,
             membershipId: membership_id,
@@ -14,6 +15,7 @@ export default class Character
         }
         this.char_resp = "";
         this.valid = false;
+        this.execption_message
     }
 
     async Request()
@@ -25,9 +27,9 @@ export default class Character
         } 
         catch (e)
         {
-            console.log(e);
             this.valid = false;
-            return [false, "Character Privacy/Authorize Error"];
+            this.execption_message = e.Message;
+            return [false, e.Message];
         } 
 
         this.char_resp = resp.Response;
@@ -39,6 +41,11 @@ export default class Character
         return [true, "Success"];
     }
 
+    ExceptionMessage()
+    {
+        return this.execption_message;
+    }
+
     Valid()
     {
         return this.valid;
@@ -46,7 +53,7 @@ export default class Character
 
     LastPlayed()
     {
-        return Date.parse(this.last_played);
+        return this.last_played;
     }
 
     Power()
@@ -61,10 +68,11 @@ export default class Character
 
     Loadout()
     {
-        ASSERT(this.char_options.components.includes("CHARACTEREQUIPMENT"))
-        ASSERT(this.char_options.components.includes("ITEMINSTANCES"))
-        ASSERT(this.char_options.components.includes("ITEMSOCKETS"))
-        ASSERT(this.char_options.components.includes("ITEMPERKS"))
+        ASSERT(this.Valid())
+        ASSERT(this.char_components.includes(205))
+        ASSERT(this.char_components.includes(300))
+        ASSERT(this.char_components.includes(302))
+        ASSERT(this.char_components.includes(305))
 
         // TODO: Probably more robust to return an object mapping equipment slots to data
         // rather than an array
@@ -82,8 +90,8 @@ export default class Character
             }
 
             let instance_id = equipment_items[i].itemInstanceId;
-            let power = item_components[heavy_instance_id].primaryStat.value;
-            let sockets = item_sockets[heavy_instance_id].sockets;
+            let power = item_components[instance_id].primaryStat.value;
+            let sockets = item_sockets[instance_id].sockets;
             let weapon = new EquippableItem(
                 equipment_items[i].itemHash, power, instance_id, sockets );
             loadout.push(weapon);

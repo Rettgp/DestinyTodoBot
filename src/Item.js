@@ -1,4 +1,4 @@
-import { BungieApi } from "../bungieapi/BungieApi"
+import { BungieApi } from "./bungieapi/BungieApi"
 import { Perk } from "./Perk.js"
 
 class Item
@@ -33,9 +33,12 @@ export class EquippableItem extends Item
         this.tier = BungieApi.Destiny2.getManifestItemTierName(this.hash);
         this.perks = [];
 
-        for (let socket in sockets)
+        for (let i = 0; i < sockets.length; ++i)
         {
-            this.perks.push(new Perk(socket.plugHash, socket.isEnabled, socket.isVisible));
+            if (sockets[i].plugHash !== undefined)
+            {
+                this.perks.push(new Perk(sockets[i].plugHash, sockets[i].isEnabled, sockets[i].isVisible));
+            }
         }
     }
 

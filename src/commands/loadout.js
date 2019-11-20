@@ -1,5 +1,4 @@
-import { BungieApi } from "../bungieapi/BungieApi"
-import { Character } from "./CharacterInfo.js"
+import { Character } from "../CharacterInfo.js"
 import ColorCode from '../Color';
 import fs from 'fs';
 const path = require('path');
@@ -8,71 +7,6 @@ import { resolve } from "path";
 let Jimp = require("jimp");
 var text2png = require('text2png');
 const tmp_asset_dir = "./assets/tmp";
-
-function GetCharacterInfo(resp)
-{
-    let class_text = 
-        BungieApi.Destiny2.getManifestClassName(resp.Response.character.data.classHash);
-    let light = resp.Response.character.data.light;
-    return [class_text, light];
-}
-
-function GetCharacterKinetic(resp)
-{
-    let item_hash = resp.Response.equipment.data.items[0].itemHash;
-    let item_instance_id = resp.Response.equipment.data.items[0].itemInstanceId;
-    let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
-    let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
-    let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
-    let tier = BungieApi.Destiny2.getManifestItemTierName(item_hash);
-    tier = tier.toLowerCase();
-    let item_type = BungieApi.Destiny2.getManifestItemTypeDisplayName(item_hash);
-
-    return [item_name, item_icon, item_power, tier, item_type, item_instance_id];
-}
-
-function GetCharacterEnergy(resp)
-{
-    let item_hash = resp.Response.equipment.data.items[1].itemHash;
-    let item_instance_id = resp.Response.equipment.data.items[1].itemInstanceId;
-    let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
-    let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
-    let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
-    let tier = BungieApi.Destiny2.getManifestItemTierName(item_hash);
-    tier = tier.toLowerCase();
-    let item_type = BungieApi.Destiny2.getManifestItemTypeDisplayName(item_hash);
-
-    return [item_name, item_icon, item_power, tier, item_type, item_instance_id];
-}
-
-function GetCharacterPower(resp)
-{
-    let item_hash = resp.Response.equipment.data.items[2].itemHash;
-    let item_instance_id = resp.Response.equipment.data.items[2].itemInstanceId;
-    let item_name = BungieApi.Destiny2.getManifestItemName(item_hash);
-    let item_icon = BungieApi.Destiny2.Endpoints.rootrootPath + BungieApi.Destiny2.getManifestItemIcon(item_hash);
-    let item_power = resp.Response.itemComponents.instances.data[item_instance_id].primaryStat.value;
-    let tier = BungieApi.Destiny2.getManifestItemTierName(item_hash);
-    tier = tier.toLowerCase();
-    let item_type = BungieApi.Destiny2.getManifestItemTypeDisplayName(item_hash);
-
-    return [item_name, item_icon, item_power, tier, item_type, item_instance_id];
-}
-
-async function RequestCharacter(options)
-{
-    let resp = "";
-    try
-    {
-        resp = await BungieApi.Destiny2.getCharacter(options);
-    } 
-    catch (e)
-    {
-        return [false, "Character Privacy/Authorize Error"];
-    } 
-
-    return [true, resp];
-}
 
 async function AddSocketsToTemplate(template, sockets)
 {
@@ -86,15 +20,11 @@ async function AddSocketsToTemplate(template, sockets)
         let socket_promises = [];
         for (let socket of sockets)
         {
-            if (socket.isEnabled == true && socket.isVisible == true)
+            if (socket.Enabled() && socket.Visible() && socket.DisplayName().length > 0)
             {
-                let socket_info = BungieApi.Destiny2.getPerkNameAndIcon(socket.plugHash);
-                if (socket_info != null)
-                {
-                    socket_promises.push(Jimp.read(socket_info.icon));
-                    fs.writeFileSync(`${tmp_asset_dir}/${socket_info.name}_text.png`, text2png(`${socket_info.display}`, font_options));
-                    socket_promises.push(Jimp.read(`${tmp_asset_dir}/${socket_info.name}_text.png`));
-                }
+                socket_promises.push(Jimp.read(socket.Icon()));
+                fs.writeFileSync(`${tmp_asset_dir}/${socket.FileName()}_text.png`, text2png(`${socket.DisplayName()}`, font_options));
+                socket_promises.push(Jimp.read(`${tmp_asset_dir}/${socket.FileName()}_text.png`));
             }
         }
 
@@ -205,22 +135,19 @@ module.exports = {
         let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
-        let characters = discord_destiny_profile.characters.split(",");
+        let character_ids = discord_destiny_profile.characters.split(",");
         let latest_char = {};
         let date_time = 0;
         let characters = []
-        for (let char_id of characters)
+        for (let char_id of character_ids)
         {
             let components = ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"];
             let character = new Character(char_id, membership_type, destiny_membership_id, components);
-            await character.Request();
+            let [valid, result] = await character.Request();
 
             if (!character.Valid())
             {
-                info_message.embed.description = `${char_response}`;
-                info_message.embed.color = ColorCode.RED;
-                message.channel.send(info_message);
-                return;
+                continue;
             }
 
             characters.push(character)
@@ -231,6 +158,14 @@ module.exports = {
                 latest_char = character;
                 date_time = date_last_played;
             }
+        }
+
+        if (!latest_char.Valid())
+        {
+            info_message.embed.description = `${latest_char.ExceptionMessage()}`;
+            info_message.embed.color = ColorCode.RED;
+            message.channel.send(info_message);
+            return;
         }
         
         message.channel.send(latest_char.Class() + " - " + latest_char.Power());
@@ -271,24 +206,27 @@ module.exports = {
             localFontName: 'NeueHaasDisplay'
         };
 
-        // let char_loadout = latest_char.Loadout();
+        let char_loadout = latest_char.Loadout();
+        let primary_weapon = char_loadout[0];
+        let energy_weapon = char_loadout[1];
+        let heavy_weapon = char_loadout[2];
 
-        fs.writeFileSync(`${tmp_asset_dir}/kinetic_text.png`, text2png(kinetic_item_name, font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/sub_kinetic_text.png`, text2png(`${kinetic_item_type}`, sub_font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/light_kinetic_text.png`, text2png(`${kinetic_item_power}`, light_font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/energy_text.png`, text2png(energy_item_name, font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/sub_energy_text.png`, text2png(`${energy_item_type}`, sub_font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/light_energy_text.png`, text2png(`${energy_item_power}`, light_font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/power_text.png`, text2png(power_item_name, font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/sub_power_text.png`, text2png(`${power_item_type}`, sub_font_options));
-        fs.writeFileSync(`${tmp_asset_dir}/light_power_text.png`, text2png(`${power_item_power}`, light_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/kinetic_text.png`, text2png(primary_weapon.DisplayName(), font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_kinetic_text.png`, text2png(`${primary_weapon.ItemTypeDisplayName()}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_kinetic_text.png`, text2png(`${primary_weapon.Power()}`, light_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/energy_text.png`, text2png(energy_weapon.DisplayName(), font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_energy_text.png`, text2png(`${energy_weapon.ItemTypeDisplayName()}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_energy_text.png`, text2png(`${energy_weapon.Power()}`, light_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/power_text.png`, text2png(heavy_weapon.DisplayName(), font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/sub_power_text.png`, text2png(`${heavy_weapon.ItemTypeDisplayName()}`, sub_font_options));
+        fs.writeFileSync(`${tmp_asset_dir}/light_power_text.png`, text2png(`${heavy_weapon.Power()}`, light_font_options));
         let read_promises = [
-            Jimp.read(`./assets/${kinetic_tier}_template.png`),
-            Jimp.read(`./assets/${energy_tier}_template.png`),
-            Jimp.read(`./assets/${power_tier}_template.png`),
-            Jimp.read(kinetic_item_icon),
-            Jimp.read(energy_item_icon),
-            Jimp.read(power_item_icon),
+            Jimp.read(`./assets/${primary_weapon.TierDisplayName().toLowerCase()}_template.png`),
+            Jimp.read(`./assets/${energy_weapon.TierDisplayName().toLowerCase()}_template.png`),
+            Jimp.read(`./assets/${heavy_weapon.TierDisplayName().toLowerCase()}_template.png`),
+            Jimp.read(primary_weapon.Icon()),
+            Jimp.read(energy_weapon.Icon()),
+            Jimp.read(heavy_weapon.Icon()),
             Jimp.read(`${tmp_asset_dir}/kinetic_text.png`),
             Jimp.read(`${tmp_asset_dir}/sub_kinetic_text.png`),
             Jimp.read(`${tmp_asset_dir}/light_kinetic_text.png`),
@@ -320,13 +258,9 @@ module.exports = {
             template_e = await CompositeWeaponTemplate(template_e, icon_e, text_e, text_s_e, text_l_e);
             template_p = await CompositeWeaponTemplate(template_p, icon_p, text_p, text_s_p, text_l_p);
 
-            let kinetic_sockets = char.Response.itemComponents.sockets.data[kinetic_instance_id].sockets;
-            let energy_sockets = char.Response.itemComponents.sockets.data[energy_instance_id].sockets;
-            let power_sockets = char.Response.itemComponents.sockets.data[power_instance_id].sockets;
-
-            template_k = await AddSocketsToTemplate(template_k, kinetic_sockets);
-            template_e = await AddSocketsToTemplate(template_e, energy_sockets);
-            template_p = await AddSocketsToTemplate(template_p, power_sockets);
+            template_k = await AddSocketsToTemplate(template_k, primary_weapon.Perks());
+            template_e = await AddSocketsToTemplate(template_e, energy_weapon.Perks());
+            template_p = await AddSocketsToTemplate(template_p, heavy_weapon.Perks());
 
             let image_write_promises = [];
             image_write_promises.push(template_k.write(`${tmp_asset_dir}/kinetic_result.png`));
