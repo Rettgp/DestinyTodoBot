@@ -1,4 +1,5 @@
 import { BungieApi } from "./bungieapi/BungieApi"
+import { Character } from "./CharacterInfo.js"
 
 function GetCharacterInfo(resp)
 {
@@ -48,46 +49,32 @@ export default class ActivityHistory
 
     async History(destiny_membership_id, membership_type, character_id, activity_string, activity_mode)
     {
-        let activity_mode_resp = await BungieApi.Destiny2.findActivityMode(activity_mode);
+        let character = new Character(character_id, membership_type, destiny_membership_id);
 
-        let options = {
-            page: 0,
-            mode: activity_mode_resp,
-            count: 10, //TODO (Garrett): Is this too small?
-            characterId: character_id,
-            destinyMembershipId: destiny_membership_id,
-            membershipType: membership_type
+        let [valid, char_result] = await character.Request();
+        if (!valid)
+        {
+            return " " + char_result;
         }
 
-        let [activity_valid, history_resp] = await RequestActivityHistory(options);
+        let [activity_valid, history_result] = await character.RequestActivityHistory();
         if (!activity_valid)
         {
-            return history_resp;
+            return " " + history_result;
         }
 
-        if (history_resp.Response.activities === undefined)
+        let activities = character.ActivityHistory();
+
+        if (activities === undefined)
         {
             return " ";
         }
 
-        let char_options = {
-            characterId: character_id,
-            membershipId: destiny_membership_id,
-            mType: membership_type,
-            components: ["CHARACTERS"]
-        }
-        let [char_valid, char_response] = await RequestCharacter(char_options);
-        if (!char_valid)
-        {
-            return char_response;
-        }
-
-        let char_class = GetCharacterInfo(char_response);
-
         let now = new Date();
         let completed = this.incomplete;
-        for (let activity of history_resp.Response.activities)
+        for (let i = 0; i < activities.length; ++i)
         {
+            let activity = activities[i];
             let activity_name = BungieApi.Destiny2.getManifestActivityName(activity.activityDetails.directorActivityHash);
             if (activity_name === activity_string)
             {
@@ -105,6 +92,6 @@ export default class ActivityHistory
                 }
             }
         }
-        return char_class + completed;
+        return character.Class() + completed;
     }
 }
