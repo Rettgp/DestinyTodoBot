@@ -191,9 +191,105 @@ class Destiny2{
 		return null;
 	}
 
-	getManifestProgressionDisplayUnitsName(hash)
+	getManifestProgressionDisplayProperties(hash)
 	{
 		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["displayProperties"];
+	}
+
+	getGloryRank( level )
+	{
+		let gloryRanks = {
+			"GUARDIAN I" : { MIN: 0, MAX: 39 },
+			"GUARDIAN II" : { MIN: 40, MAX: 109 },
+			"GUARDIAN III" : { MIN: 110, MAX: 199 },
+			"BRAVE I" : { MIN: 200, MAX: 369 },
+			"BRAVE II" : { MIN: 370, MAX: 664 },
+			"BRAVE III" : { MIN: 665, MAX: 1049 },
+			"HEROIC I" : { MIN: 1050, MAX: 1259 },
+			"HEROIC II" : { MIN: 1260, MAX: 1624 },
+			"HEROIC III" : { MIN: 1625, MAX: 2099 },
+			"FABLED I" : { MIN: 2100, MAX: 2379 },
+			"FABLED II" : { MIN: 2380, MAX: 2869 },
+			"FABLED III" : { MIN: 2870, MAX: 3499 },
+			"MYTHIC I" : { MIN: 3500, MAX: 3879 },
+			"MYTHIC II" : { MIN: 3880, MAX: 4544 },
+			"MYTHIC III" : { MIN: 4545, MAX: 5449 },
+			"LEGNED" : { MIN: 5450, MAX: 5500 },
+		};
+
+		let rank = ``;
+		for (var key in gloryRanks)
+		{
+			if ((level >= gloryRanks[key].MIN) && (level <= gloryRanks[key].MAX))
+			{
+				return key;
+			}
+		}
+		return rank;
+	}
+
+	getValorRank( level )
+	{
+		let valorRanks = {
+			"GUARDIAN I" : { MIN: 0, MAX: 9 },
+			"GUARDIAN II" : { MIN: 10, MAX: 24 },
+			"GUARDIAN III" : { MIN: 25, MAX: 49 },
+			"BRAVE I" : { MIN: 50, MAX: 109 },
+			"BRAVE II" : { MIN: 110, MAX: 214 },
+			"BRAVE III" : { MIN: 215, MAX: 349 },
+			"HEROIC I" : { MIN: 350, MAX: 419 },
+			"HEROIC II" : { MIN: 420, MAX: 549 },
+			"HEROIC III" : { MIN: 550, MAX: 699 },
+			"FABLED I" : { MIN: 700, MAX: 789 },
+			"FABLED II" : { MIN: 790, MAX: 939 },
+			"FABLED III" : { MIN: 940, MAX: 1149 },
+			"MYTHIC I" : { MIN: 1150, MAX: 1279 },
+			"MYTHIC II" : { MIN: 1280, MAX: 1509 },
+			"MYTHIC III" : { MIN: 1510, MAX: 1799 },
+			"LEGNED" : { MIN: 1800, MAX: 2000 },
+		};
+
+		let rank = ``;
+		for (var key in valorRanks)
+		{
+			if ((level >= valorRanks[key].MIN) && (level <= valorRanks[key].MAX))
+			{
+				return key;
+			}
+		}
+		return rank;
+	}
+
+	getInfamyRank( level )
+	{
+		let infamyRanks = {
+			"GUARDIAN I" : { MIN: 0, MAX: 249 },
+			"GUARDIAN II" : { MIN: 250, MAX: 599 },
+			"GUARDIAN III" : { MIN: 600, MAX: 999 },
+			"BRAVE I" : { MIN: 1000, MAX: 1449 },
+			"BRAVE II" : { MIN: 1450, MAX: 1949 },
+			"BRAVE III" : { MIN: 1950, MAX: 2499 },
+			"HEROIC I" : { MIN: 2500, MAX: 3099 },
+			"HEROIC II" : { MIN: 3100, MAX: 3749 },
+			"HEROIC III" : { MIN: 3750, MAX: 4499 },
+			"FABLED I" : { MIN: 4500, MAX: 5349 },
+			"FABLED II" : { MIN: 5350, MAX: 6349 },
+			"FABLED III" : { MIN: 6350, MAX: 7499 },
+			"MYTHIC I" : { MIN: 7500, MAX: 8799 },
+			"MYTHIC II" : { MIN: 8800, MAX: 10299 },
+			"MYTHIC III" : { MIN: 10300, MAX: 11999 },
+			"LEGNED" : { MIN: 12000, MAX: 15000 },
+		};
+
+		let rank = ``;
+		for (var key in infamyRanks)
+		{
+			if ((level >= infamyRanks[key].MIN) && (level <= infamyRanks[key].MAX))
+			{
+				return key;
+			}
+		}
+		return rank;
 	}
 
 	findActivityMode(activity_string)
@@ -627,38 +723,48 @@ class Destiny2{
 	 * @see {@link https://bungie-net.github.io/multi/operation_get_Destiny2-GetHistoricalStats.html#operation_get_Destiny2-GetHistoricalStats|Destiny2.GetHistoricalStats} for more information
 	 */
 	getHistoricalStats( Opts ){
-		let groups = [];
-		let modes  = [];
-		Opts.groups.forEach( group => { groups.push( Ml.enumLookup( group, this.Enums.destinyStatsGroupType ) ) } );
-		Opts.modes.forEach( mode => { modes.push( Ml.enumLookup( mode, this.Enums.destinyActivityModeType ) ) } );
-
-		return Promise.all( [
-			// Will be used directly below, use your eyes
-			Promise.all( groups ),
-			Promise.all( modes ),
-			Ml.enumLookup( Opts.periodType, this.Enums.periodType ),
-			Ml.enumLookup( Opts.membershipType, this.Enums.membershipType )
-
-		] ).then( promises => {
-			// Mapped directly above, use your eyes
-			Opts.groups         = promises[0].join( "," );// Arrays are CSV strings I guess?
-			Opts.modes          = promises[1].join( "," );
-			Opts.periodType     = promises[2];
-			Opts.membershipType = promises[3];
-
-			return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
-				characterId         : Opts.characterId,
-				membershipId : Opts.membershipId,
-				membershipType      : Opts.membershipType
-			}, {
-				dayend     : Opts.dayEnd,
-				daystart   : Opts.dayStart,
-				groups     : Opts.groups.join( "," ),
-				modes      : Opts.modes.join( "," ),
-				periodType : Opts.periodType
-			} );
-
+		Opts.modes = ( isNaN( parseInt( Opts.modes ) ) ) ? 0 : Opts.modes;
+		return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
+			// Path params
+			characterId         : Opts.characterId,
+			membershipType		: Opts.mType,
+			membershipId   		: Opts.membershipId
+		}, {
+			// Query params
+			modes  : Opts.modes,
 		} ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
+		// let groups = [];
+		// let modes  = [];
+		// Opts.groups.forEach( group => { groups.push( Ml.enumLookup( group, this.Enums.destinyStatsGroupType ) ) } );
+		// Opts.modes.forEach( mode => { modes.push( Ml.enumLookup( mode, this.Enums.destinyActivityModeType ) ) } );
+
+		// return Promise.all( [
+		// 	// Will be used directly below, use your eyes
+		// 	Promise.all( groups ),
+		// 	Promise.all( modes ),
+		// 	Ml.enumLookup( Opts.periodType, this.Enums.periodType ),
+		// 	Ml.enumLookup( Opts.membershipType, this.Enums.membershipType )
+
+		// ] ).then( promises => {
+		// 	// Mapped directly above, use your eyes
+		// 	Opts.groups         = promises[0].join( "," );// Arrays are CSV strings I guess?
+		// 	Opts.modes          = promises[1].join( "," );
+		// 	Opts.periodType     = promises[2];
+		// 	Opts.membershipType = promises[3];
+
+		// 	return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
+		// 		characterId         : Opts.characterId,
+		// 		membershipId 		: Opts.membershipId,
+		// 		membershipType      : Opts.membershipType
+		// 	}, {
+		// 		dayend     : Opts.dayEnd,
+		// 		daystart   : Opts.dayStart,
+		// 		groups     : Opts.groups.join( "," ),
+		// 		modes      : Opts.modes.join( "," ),
+		// 		periodType : Opts.periodType
+		// 	} );
+
+		// } ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
 	}
 
 	/**
