@@ -142,8 +142,8 @@ module.exports = {
         for (let char_id of character_ids)
         {
             let components = ["CHARACTERS", "CHARACTEREQUIPMENT", "ITEMINSTANCES", "ITEMSOCKETS", "ITEMPERKS"];
-            let character = new Character(char_id, membership_type, destiny_membership_id, components);
-            let [valid, result] = await character.Request();
+            let character = new Character(char_id, membership_type, destiny_membership_id);
+            let [valid, result] = await character.Request(components);
 
             if (!character.Valid())
             {

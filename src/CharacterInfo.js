@@ -4,23 +4,25 @@ let ASSERT = require("assert");
 
 export class Character
 {
-    constructor(char_id, membership_type, membership_id, components = ["CHARACTERS"])
+    constructor(char_id, membership_type, membership_id)
     {
-        this.char_components = components;
         this.char_options = {
             characterId: char_id,
             membershipId: membership_id,
             mType: membership_type,
-            components: components
+            components: []
         }
         this.char_resp = "";
         this.valid = false;
         this.execption_message = "";
+        this.progressions = undefined;
         this.activities = [];
     }
 
-    async Request()
+    async Request(components = ["CHARACTERS"])
     {
+        this.char_options.components = components;
+
         let resp = "";
         try
         {
@@ -38,6 +40,7 @@ export class Character
             BungieApi.Destiny2.getManifestClassName(this.char_resp.character.data.classHash);
         this.power = this.char_resp.character.data.light;
         this.last_played = Date.parse(this.char_resp.character.data.dateLastPlayed);
+
         this.valid = true;
         return [true, "Success"];
     }
@@ -66,6 +69,25 @@ export class Character
 
         this.activities = resp.Response.activities;
         return [true, "Success"];
+    }
+
+    AllCharacterProgressions()
+    {
+        ASSERT(this.char_options.components.includes(202));
+
+        return this.char_resp.progressions;
+    }
+
+    CharacterProgressions(progression_hash)
+    {
+        ASSERT(this.char_options.components.includes(202));
+
+        let progress = {
+            name: BungieApi.Destiny2.getManifestProgressionDisplayUnitsName(progression_hash),
+            value: this.char_resp.progressions[progression_hash].currentProgress
+        };
+
+        return progress;
     }
 
     ActivityHistory()
@@ -101,10 +123,10 @@ export class Character
     Loadout()
     {
         ASSERT(this.Valid())
-        ASSERT(this.char_components.includes(205))
-        ASSERT(this.char_components.includes(300))
-        ASSERT(this.char_components.includes(302))
-        ASSERT(this.char_components.includes(305))
+        ASSERT(this.char_options.components.includes(205))
+        ASSERT(this.char_options.components.includes(300))
+        ASSERT(this.char_options.components.includes(302))
+        ASSERT(this.char_options.components.includes(305))
 
         // TODO: Probably more robust to return an object mapping equipment slots to data
         // rather than an array
