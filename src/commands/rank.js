@@ -57,7 +57,6 @@ function GetInfamyRank(level)
 function GetUpdatedInfoMessage(data)
 {
     let info_message = {
-        content: ``,
         embed: {
             description: "",
             color: ColorCode.DEFAULT,
@@ -68,7 +67,6 @@ function GetUpdatedInfoMessage(data)
         }
     };
 
-    info_message.content = data.author;
     info_message.embed.thumbnail.url = data.icon_url;
     info_message.embed.fields.push({ name: `${data.name}: ${data.rank}`, value: `${data.score}` , inline: `false`});
     info_message.embed.fields.push({ name: `K/D`, value: `${data.kd}` , inline: `true`});
@@ -84,7 +82,6 @@ module.exports = {
     {
         let server_id = message.guild.id;
         let info_message = {
-            content: ``, // TODO (Michael): Figure out why content isn't working on a message
             embed: {
                 description: "",
                 color: ColorCode.DEFAULT,
@@ -110,6 +107,7 @@ module.exports = {
             message.channel.send(info_message);
             return;
         }
+        message.channel.send(`**Rank Stats: ${user_key.username}**`);
 
         let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
@@ -155,7 +153,6 @@ module.exports = {
         }
         let comp_progression_display_properties = GetProgressionPvp(progression_hash_values.glory);
         let comp_data = {
-            author: `**Rank Stats: ${user_key.username}**`,
             name: `Glory Rank`,
             rank: 0,
             score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.glory].currentProgress,
@@ -184,7 +181,6 @@ module.exports = {
         }
         let qp_progression_display_properties = GetProgressionPvp(progression_hash_values.valor);
         let qp_data = {
-            author: ``,
             name: `Valor Rank`,
             rank: 0,
             score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.valor].currentProgress,
@@ -213,7 +209,6 @@ module.exports = {
         }
         let gambit_progression_display_properties = GetProgressionPvp(progression_hash_values.infamy);
         let gambit_data = {
-            author: ``,
             name: `Infamy Rank`,
             rank: 0,
             score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.infamy].currentProgress,
