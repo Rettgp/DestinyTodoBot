@@ -87,7 +87,7 @@ export class Character
         let progress = {
             name: BungieApi.Destiny2.getManifestProgressionDisplayProperties(progression_hash).name,
             score: this.char_resp.progressions.data.progressions[progression_hash].currentProgress,
-            icon: `https://www.bungie.net${steps[step_index].icon}`,
+            icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${steps[step_index].icon}`,
             rank: steps[step_index].stepName,
         };
 
