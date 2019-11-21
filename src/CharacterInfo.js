@@ -2,8 +2,19 @@ import { BungieApi } from "./bungieapi/BungieApi"
 import { EquippableItem } from "./Item.js"
 let ASSERT = require("assert");
 
+// the maximum amount of time the character data 
+// is allowed to be stale (ms) 10 minutes
+const MAX_CHARACTER_STALENESS = 10 * 60 * 1000;
+// the maximum amount of time the activity data 
+// is allowed to be stale (ms) 10 minutes
+const MAX_ACTIVITY_STALENESS = 10 * 60 * 1000;
+
+let s_characters = new Map();
+let s_activities = new Map();
+
 export class Character
 {
+
     constructor(char_id, membership_type, membership_id)
     {
         this.char_options = {
@@ -12,30 +23,52 @@ export class Character
             mType: membership_type,
             components: []
         }
-        this.char_resp = "";
         this.valid = false;
         this.execption_message = "";
         this.progressions = undefined;
         this.activities = [];
     }
 
-    async Request(components = ["CHARACTERS"])
+    async Request()
     {
-        this.char_options.components = components;
+        let stored_character = s_characters.get(this.char_options.characterId);
+        let should_request = (stored_character === undefined) ||
+            (Date.now() - stored_character.last_updated) >= MAX_CHARACTER_STALENESS
 
-        let resp = "";
-        try
-        {
-            resp = await BungieApi.Destiny2.getCharacter(this.char_options);
-        } 
-        catch (e)
-        {
-            this.valid = false;
-            this.execption_message = e.Message;
-            return [false, e.Message];
-        } 
+        this.char_options.components = [
+            BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERS,
+            BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERPROGRESSIONS,
+            BungieApi.Destiny2.Enums.destinyComponentType.CHARACTEREQUIPMENT,
+            BungieApi.Destiny2.Enums.destinyComponentType.ITEMINSTANCES,
+            BungieApi.Destiny2.Enums.destinyComponentType.ITEMSOCKETS,
+            BungieApi.Destiny2.Enums.destinyComponentType.ITEMPERKS
+        ];
 
-        this.char_resp = resp.Response;
+        if (should_request)
+        {
+            let resp = "";
+            try
+            {
+                resp = await BungieApi.Destiny2.getCharacter(this.char_options);
+            } 
+            catch (e)
+            {
+                this.valid = false;
+                this.execption_message = e.Message;
+                return [false, e.Message];
+            } 
+
+            this.char_resp = resp.Response;
+            s_characters.set(this.char_options.characterId, {
+                value: resp.Response,
+                last_updated: Date.now()
+            });
+        }
+        else
+        {
+            this.char_resp = stored_character.value;
+        }
+
         this.class_name = 
             BungieApi.Destiny2.getManifestClassName(this.char_resp.character.data.classHash);
         this.power = this.char_resp.character.data.light;
@@ -47,6 +80,9 @@ export class Character
 
     async RequestActivityHistory()
     {
+        let stored_activities = s_activities.get(this.char_options.characterId);
+        let should_request = (stored_activities === undefined) ||
+            (Date.now() - stored_activities.last_updated) >= MAX_ACTIVITY_STALENESS
         let options = {
             page: 0,
             mode: "NONE",
@@ -55,33 +91,42 @@ export class Character
             destinyMembershipId: this.char_options.membershipId,
             membershipType: this.char_options.mType
         }
-        let resp = "";
-        try
-        {
-            resp = await BungieApi.Destiny2.getActivityHistory(options);
-        } 
-        catch (e)
-        {
-            this.valid = false;
-            this.execption_message = e.Message;
-            return [false, e.Message];
-        } 
 
-        this.activities = resp.Response.activities;
+        if (should_request)
+        {
+            let resp = "";
+            try
+            {
+                resp = await BungieApi.Destiny2.getActivityHistory(options);
+            } 
+            catch (e)
+            {
+                this.valid = false;
+                this.execption_message = e.Message;
+                return [false, e.Message];
+            } 
+
+            this.activities = resp.Response.activities;
+            s_activities.set(this.char_options.characterId, {
+                value: resp.Response.activities,
+                last_updated: Date.now()
+            });
+        }
+        else
+        {
+            this.activities = stored_activities.value;
+        }
+
         return [true, "Success"];
     }
 
     AllCharacterProgressions()
     {
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERPROGRESSIONS));
-
         return this.char_resp.progressions;
     }
 
     CharacterProgressions(progression_hash)
     {
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERPROGRESSIONS));
-
         let steps = BungieApi.Destiny2.getManifestProgressionSteps(progression_hash);
         let step_index = this.char_resp.progressions.data.progressions[progression_hash].stepIndex;
         let progress = {
@@ -127,10 +172,6 @@ export class Character
     Loadout()
     {
         ASSERT(this.Valid())
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTEREQUIPMENT))
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMINSTANCES))
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMPERKS))
-        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMSOCKETS))
 
         // TODO: Probably more robust to return an object mapping equipment slots to data
         // rather than an array
