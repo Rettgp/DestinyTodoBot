@@ -1,27 +1,6 @@
 import { BungieApi } from "../bungieapi/BungieApi"
+import { Character } from "../CharacterInfo.js"
 import ColorCode from '../Color';
-
-function GetProgressionPvp(hash)
-{
-    return BungieApi.Destiny2.getManifestProgressionDisplayProperties(hash);
-}
-
-async function GetCharacterProgressions(options)
-{
-    let resp = "";
-    try
-    {
-        resp = await BungieApi.Destiny2.getProfile(
-            options.membershipId, options.mType, options.components);
-    } 
-    catch (e)
-    {
-        console.log(`${e}`);
-        return [false, "Character Privacy/Authorize Error"];
-    } 
-
-    return [true, resp];
-}
 
 async function GetHistoricalAccountStats(options)
 {
@@ -37,21 +16,6 @@ async function GetHistoricalAccountStats(options)
     } 
 
     return [true, resp];
-}
-
-function GetGloryRank(level)
-{
-    return BungieApi.Destiny2.getGloryRank(level);
-}
-
-function GetValorRank(level)
-{
-    return BungieApi.Destiny2.getValorRank(level);
-}
-
-function GetInfamyRank(level)
-{
-    return BungieApi.Destiny2.getInfamyRank(level);
 }
 
 function GetUpdatedInfoMessage(data)
@@ -116,107 +80,77 @@ module.exports = {
         let character_id = character_keys[0];
 
         let progression_hash_values = {
-            glory: 2679551909,
-            valor: 3882308435,
+            glory_simple: 2679551909, // simple rank
+            glory_detailed: 2000925172, // detailed rank
+            valor_simple: 3882308435, // simple rank
+            valor_detailed: 2626549951, // detailed rank
             infamy: 2772425241,
         };
 
         // Get Character Progression
-        let progression_options = {
+        let character = new Character(character_id, membership_type, destiny_membership_id);
+
+        let components = ["CHARACTERS", "CHARACTERPROGRESSIONS"];
+        let [valid, char_result] = await character.Request(components);
+        if (!valid)
+        {
+            return " " + char_result;
+        }
+
+        // Get Stats
+        let progression_glory = character.CharacterProgressions(progression_hash_values.glory_detailed);
+        let stat_options = {
             membershipId: destiny_membership_id,
             mType: membership_type,
-            components: ["CHARACTERPROGRESSIONS"],
+            characterId: 0,
+            modes: [BungieApi.Destiny2.Enums.destinyActivityModeType.PVPCOMPETITIVE,
+                BungieApi.Destiny2.Enums.destinyActivityModeType.PVPQUICKPLAY,
+                BungieApi.Destiny2.Enums.destinyActivityModeType.GAMBIT]
         }
-        let [progression_valid, char_progression_response] = await GetCharacterProgressions(progression_options);
-        if (!progression_valid)
+        let [stat_valid, stat_response] = await GetHistoricalAccountStats(stat_options);
+        if (!stat_valid)
         {
-            info_message.embed.description = `${char_progression_response}`;
+            info_message.embed.description = `${stat_response}`;
             info_message.embed.color = ColorCode.RED;
             message.channel.send(info_message);
             return;
         }
 
         // Get Competitive Stats
-        let comp_stat_options = {
-            membershipId: destiny_membership_id,
-            mType: membership_type,
-            characterId: 0,
-            modes: BungieApi.Destiny2.Enums.destinyActivityModeType.PVPCOMPETITIVE,
-        }
-        let [comp_valid, comp_stat_response] = await GetHistoricalAccountStats(comp_stat_options);
-        if (!comp_valid)
-        {
-            info_message.embed.description = `${comp_stat_response}`;
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
-            return;
-        }
-        let comp_progression_display_properties = GetProgressionPvp(progression_hash_values.glory);
         let comp_data = {
-            name: `Glory Rank`,
-            rank: 0,
-            score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.glory].currentProgress,
-            icon_url: `https://www.bungie.net${comp_progression_display_properties.icon}`,
-            kd: comp_stat_response.Response.pvpCompetitive.allTime[`killsDeathsRatio`].basic.displayValue,
-            efficiency: comp_stat_response.Response.pvpCompetitive.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
+            name: progression_glory.name,
+            rank: progression_glory.rank,
+            score: progression_glory.score,
+            icon_url: progression_glory.icon,
+            kd: stat_response.Response.pvpCompetitive.allTime[`killsDeathsRatio`].basic.displayValue,
+            efficiency: stat_response.Response.pvpCompetitive.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
         };
-        comp_data.rank = GetGloryRank(comp_data.score);
         info_message = GetUpdatedInfoMessage(comp_data);
         message.channel.send(info_message);
 
         // Get Quickplay Stats
-        let quickplay_stat_options = {
-            membershipId: destiny_membership_id,
-            mType: membership_type,
-            characterId: 0,
-            modes: BungieApi.Destiny2.Enums.destinyActivityModeType.PVPQUICKPLAY,
-        }
-        let [quickplay_valid, quickplay_stat_response] = await GetHistoricalAccountStats(quickplay_stat_options);
-        if (!quickplay_valid)
-        {
-            info_message.embed.description = `${quickplay_stat_response}`;
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
-            return;
-        }
-        let qp_progression_display_properties = GetProgressionPvp(progression_hash_values.valor);
+        let progression_valor = character.CharacterProgressions(progression_hash_values.valor_detailed);
         let qp_data = {
-            name: `Valor Rank`,
-            rank: 0,
-            score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.valor].currentProgress,
-            icon_url: `https://www.bungie.net${qp_progression_display_properties.icon}`,
-            kd: quickplay_stat_response.Response.pvpQuickplay.allTime[`killsDeathsRatio`].basic.displayValue,
-            efficiency: quickplay_stat_response.Response.pvpQuickplay.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
+            name: progression_valor.name,
+            rank: progression_valor.rank,
+            score: progression_valor.score,
+            icon_url: progression_valor.icon,
+            kd: stat_response.Response.pvpQuickplay.allTime[`killsDeathsRatio`].basic.displayValue,
+            efficiency: stat_response.Response.pvpQuickplay.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
         };
-        qp_data.rank = GetValorRank(qp_data.score);
         info_message = GetUpdatedInfoMessage(qp_data);
         message.channel.send(info_message);
 
         // Get Gambit Stats
-        let gambit_stat_options = {
-            membershipId: destiny_membership_id,
-            mType: membership_type,
-            characterId: 0,
-            modes: BungieApi.Destiny2.Enums.destinyActivityModeType.GAMBIT,
-        }
-        let [gambit_valid, gambit_stat_response] = await GetHistoricalAccountStats(gambit_stat_options);
-        if (!gambit_valid)
-        {
-            info_message.embed.description = `${gambit_stat_response}`;
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
-            return;
-        }
-        let gambit_progression_display_properties = GetProgressionPvp(progression_hash_values.infamy);
+        let progression_infamy = character.CharacterProgressions(progression_hash_values.infamy);
         let gambit_data = {
-            name: `Infamy Rank`,
-            rank: 0,
-            score: char_progression_response.Response.characterProgressions.data[character_id].progressions[progression_hash_values.infamy].currentProgress,
-            icon_url: `https://www.bungie.net${gambit_progression_display_properties.icon}`,
-            kd: gambit_stat_response.Response.pvecomp_gambit.allTime[`killsDeathsRatio`].basic.displayValue,
-            efficiency: gambit_stat_response.Response.pvecomp_gambit.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
+            name: progression_infamy.name,
+            rank: progression_infamy.rank,
+            score: progression_infamy.score,
+            icon_url: progression_infamy.icon,
+            kd: stat_response.Response.pvecomp_gambit.allTime[`killsDeathsRatio`].basic.displayValue,
+            efficiency: stat_response.Response.pvecomp_gambit.allTime[`efficiency`].basic.displayValue, //(kill + assist) / death
         };
-        gambit_data.rank = GetInfamyRank(gambit_data.score);
         info_message = GetUpdatedInfoMessage(gambit_data);
         message.channel.send(info_message);
 
