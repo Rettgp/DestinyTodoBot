@@ -191,9 +191,14 @@ class Destiny2{
 		return null;
 	}
 
-	getManifestProgressionDisplayUnitsName(hash)
+	getManifestProgressionDisplayProperties(hash)
 	{
 		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["displayProperties"];
+	}
+
+	getManifestProgressionSteps(hash)
+	{
+		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["steps"];
 	}
 
 	findActivityMode(activity_string)
@@ -627,38 +632,48 @@ class Destiny2{
 	 * @see {@link https://bungie-net.github.io/multi/operation_get_Destiny2-GetHistoricalStats.html#operation_get_Destiny2-GetHistoricalStats|Destiny2.GetHistoricalStats} for more information
 	 */
 	getHistoricalStats( Opts ){
-		let groups = [];
-		let modes  = [];
-		Opts.groups.forEach( group => { groups.push( Ml.enumLookup( group, this.Enums.destinyStatsGroupType ) ) } );
-		Opts.modes.forEach( mode => { modes.push( Ml.enumLookup( mode, this.Enums.destinyActivityModeType ) ) } );
-
-		return Promise.all( [
-			// Will be used directly below, use your eyes
-			Promise.all( groups ),
-			Promise.all( modes ),
-			Ml.enumLookup( Opts.periodType, this.Enums.periodType ),
-			Ml.enumLookup( Opts.membershipType, this.Enums.membershipType )
-
-		] ).then( promises => {
-			// Mapped directly above, use your eyes
-			Opts.groups         = promises[0].join( "," );// Arrays are CSV strings I guess?
-			Opts.modes          = promises[1].join( "," );
-			Opts.periodType     = promises[2];
-			Opts.membershipType = promises[3];
-
-			return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
-				characterId         : Opts.characterId,
-				membershipId : Opts.membershipId,
-				membershipType      : Opts.membershipType
-			}, {
-				dayend     : Opts.dayEnd,
-				daystart   : Opts.dayStart,
-				groups     : Opts.groups.join( "," ),
-				modes      : Opts.modes.join( "," ),
-				periodType : Opts.periodType
-			} );
-
+		Opts.modes = ( isNaN( parseInt( Opts.modes ) ) ) ? 0 : Opts.modes;
+		return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
+			// Path params
+			characterId         : Opts.characterId,
+			membershipType		: Opts.mType,
+			membershipId   		: Opts.membershipId
+		}, {
+			// Query params
+			modes  : Opts.modes,
 		} ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
+		// let groups = [];
+		// let modes  = [];
+		// Opts.groups.forEach( group => { groups.push( Ml.enumLookup( group, this.Enums.destinyStatsGroupType ) ) } );
+		// Opts.modes.forEach( mode => { modes.push( Ml.enumLookup( mode, this.Enums.destinyActivityModeType ) ) } );
+
+		// return Promise.all( [
+		// 	// Will be used directly below, use your eyes
+		// 	Promise.all( groups ),
+		// 	Promise.all( modes ),
+		// 	Ml.enumLookup( Opts.periodType, this.Enums.periodType ),
+		// 	Ml.enumLookup( Opts.membershipType, this.Enums.membershipType )
+
+		// ] ).then( promises => {
+		// 	// Mapped directly above, use your eyes
+		// 	Opts.groups         = promises[0].join( "," );// Arrays are CSV strings I guess?
+		// 	Opts.modes          = promises[1].join( "," );
+		// 	Opts.periodType     = promises[2];
+		// 	Opts.membershipType = promises[3];
+
+		// 	return Ml.renderEndpoint( this.Endpoints.getHistoricalStats, {
+		// 		characterId         : Opts.characterId,
+		// 		membershipId 		: Opts.membershipId,
+		// 		membershipType      : Opts.membershipType
+		// 	}, {
+		// 		dayend     : Opts.dayEnd,
+		// 		daystart   : Opts.dayStart,
+		// 		groups     : Opts.groups.join( "," ),
+		// 		modes      : Opts.modes.join( "," ),
+		// 		periodType : Opts.periodType
+		// 	} );
+
+		// } ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
 	}
 
 	/**

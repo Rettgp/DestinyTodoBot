@@ -18,6 +18,7 @@ module.exports = {
                         value: 
                         '!authorize\n'+
                         '!loadout <@username>\n' +
+                        '!rank <@username>\n' +
                         '!todo <item> <(date)>\n' +
                         '!todos\n' +
                         '!complete <item>\n',
@@ -27,7 +28,8 @@ module.exports = {
                         name: 'Description',
                         value: 
                         'Allow Rasputin to access your character information\n' +
-                        'Query a users current loadout\n' +
+                        'Query a users current loadout, @username is optional\n' +
+                        'Query a users current ranking, @username is optional\n' +
                         'Add an item to do and when to do it in "( )"\n' +
                         'Query all todo items\n' +
                         'Mark a todo as completed\n',

@@ -73,18 +73,22 @@ export class Character
 
     AllCharacterProgressions()
     {
-        ASSERT(this.char_options.components.includes(202));
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERPROGRESSIONS));
 
         return this.char_resp.progressions;
     }
 
     CharacterProgressions(progression_hash)
     {
-        ASSERT(this.char_options.components.includes(202));
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTERPROGRESSIONS));
 
+        let steps = BungieApi.Destiny2.getManifestProgressionSteps(progression_hash);
+        let step_index = this.char_resp.progressions.data.progressions[progression_hash].stepIndex;
         let progress = {
-            name: BungieApi.Destiny2.getManifestProgressionDisplayUnitsName(progression_hash),
-            value: this.char_resp.progressions[progression_hash].currentProgress
+            name: BungieApi.Destiny2.getManifestProgressionDisplayProperties(progression_hash).name,
+            score: this.char_resp.progressions.data.progressions[progression_hash].currentProgress,
+            icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${steps[step_index].icon}`,
+            rank: steps[step_index].stepName,
         };
 
         return progress;
@@ -123,10 +127,10 @@ export class Character
     Loadout()
     {
         ASSERT(this.Valid())
-        ASSERT(this.char_options.components.includes(205))
-        ASSERT(this.char_options.components.includes(300))
-        ASSERT(this.char_options.components.includes(302))
-        ASSERT(this.char_options.components.includes(305))
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.CHARACTEREQUIPMENT))
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMINSTANCES))
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMPERKS))
+        ASSERT(this.char_options.components.includes(BungieApi.Destiny2.Enums.destinyComponentType.ITEMSOCKETS))
 
         // TODO: Probably more robust to return an object mapping equipment slots to data
         // rather than an array
