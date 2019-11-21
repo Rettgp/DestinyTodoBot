@@ -6,6 +6,8 @@ module.exports = {
     description: 'Stores the user steam membership id.',
     async execute(message, args, keyv)
     {
+        message.channel.send(`A Direct Message has been sent to: ${message.author.username} for authorization.`);
+
         const info_message = {
             embed: {
                 fields: [
@@ -20,7 +22,7 @@ module.exports = {
 
         info_message.embed.fields[0].value = `[${message.author.username}](${BungieApi.authUri})`;
         info_message.embed.color = ColorCode.GOLD;
-        message.channel.send(info_message);
+        message.author.send(info_message);
 
         return;
     },
