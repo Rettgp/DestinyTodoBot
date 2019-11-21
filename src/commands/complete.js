@@ -32,8 +32,6 @@ module.exports = {
             todo_list.Deserialize(todo_list_json);
 
             let todo_name = args.join(" ");
-            let todo_type = 0;
-            [todo_name, todo_type] = BungieApi.Destiny2.findClosestActivity(todo_name);
             if (todo_list.TodoExists(todo_name))
             {
                 todo_list.RemoveTodo(todo_name);
