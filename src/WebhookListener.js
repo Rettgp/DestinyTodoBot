@@ -60,7 +60,7 @@ export default class WebhookListener
                     membership_type: membership_type_val
                 }
                 await this.keyv.set(this.message.guild.id + "-" + this.message.author.id, JSON.stringify(discord_destiny_profile));
-                this.message.channel.send(`Thank you ${this.message.author.username}!`);
+                this.message.channel.send(`${this.message.author.username} authorization sync completed!`);
             });
         });
         if (process.env.DEV.toString().trim() !== '1')
