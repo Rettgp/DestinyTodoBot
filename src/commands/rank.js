@@ -90,8 +90,7 @@ module.exports = {
         // Get Character Progression
         let character = new Character(character_id, membership_type, destiny_membership_id);
 
-        let components = ["CHARACTERS", "CHARACTERPROGRESSIONS"];
-        let [valid, char_result] = await character.Request(components);
+        let [valid, char_result] = await character.Request();
         if (!valid)
         {
             return " " + char_result;
