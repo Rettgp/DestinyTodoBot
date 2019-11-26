@@ -14,9 +14,16 @@ export default class TodoList
     // Also do we need any other convienence function if you just
     // have AddTodoEntry. It does force calling code to know how to
     // form an entry. MEH
-    AddTodo(todo, author, author_avatar, type, date)
-    {
-        let entry = new TodoEntry(author, author_avatar, type, date);
+    AddTodo(todo, author, author_avatar, type, activity_date)
+    {       
+        let expiration_date = Date.now() + (14 * 24 * 60 * 60 * 1000); // Add two weeks from now
+        if (Date.parse(activity_date))
+        {
+            activity_date = Date.parse(activity_date);
+            expiration_date = activity_date + (24 * 60 * 60 * 1000); // Add one day from user date
+        }
+        
+        let entry = new TodoEntry(author, author_avatar, type, activity_date, expiration_date);
         this.todo_list.set(todo, entry);
     }
 
@@ -58,7 +65,7 @@ export default class TodoList
         let serialized_map = new Map(JSON.parse(json));
         for (let [key, value] of serialized_map)
         {
-            let todo_entry = new TodoEntry(value.author, value.author_avatar, value.type, value.date);
+            let todo_entry = new TodoEntry(value.author, value.author_avatar, value.type, value.activity_date, value.expiration_date);
             todo_entry.color = value.color;
             let participants = value.participants;
             for (let i = 0; i < participants.length; ++i)

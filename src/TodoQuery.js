@@ -66,9 +66,15 @@ export default class TodoQuery
             todo_message.embed.color = value.Color();
             todo_message.embed.author.name = key;
             todo_message.embed.author.icon_url = avatar_url;
-            if (value.Date().length > 0)
+            if (value.Date() != "")
             {
-                todo_message.embed.footer.text = value.Date();
+                let activity_date = new Date(value.Date());
+                todo_message.embed.footer.text = `Activity Date: ${activity_date}`;
+            }
+            if (value.Expiration() != "")
+            {
+                let expiration_date = new Date(value.Expiration());
+                todo_message.embed.footer.text += `\nExpiration Date: ${expiration_date}`;
             }
             for (let participant of value.Participants())
             {
