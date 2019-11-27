@@ -12,15 +12,17 @@ const TWENTY_FOUR_HOUR_OFFSET_MS = (24 * 60 * 60 * 1000);
 
 export default class TodoTimeout
 {
-    constructor(message, keyv)
+    constructor(message, keyv, server_id, key)
     {
         this.message = message;
         this.keyv = keyv;
+        this.server_id = server_id;
+        this.key = key;
     }
 
-    async SetToDoTimeout(server_id, discord_guild)
+    async SetToDoTimeout(discord_guild)
     {
-        let todo_list_json = await this.keyv.get(server_id);
+        let todo_list_json = await this.keyv.get(this.server_id);
         if (todo_list_json === undefined)
         {
             console.log(`todo_list_json_undefined`);
@@ -58,7 +60,7 @@ export default class TodoTimeout
                     reminder_timer = ((value.Date() - now) / 2);
                 }
             }
-            let expiration_timer = (value.Expiration() - now);
+            let expiration_timer = (value.Expiration() - now) - TWENTY_FOUR_HOUR_OFFSET_MS;
             var reminder_timeout = setTimeout(() => {
                 info_message.embed.description = `${key} Activity Reminder: ${new Date(value.Date())}`;
                 info_message.embed.fields = [];
@@ -75,7 +77,7 @@ export default class TodoTimeout
               
     
             var expiration_timeout = setTimeout(() => {
-                this.CleanUpTodo(server_id, key);
+                this.CleanUpTodo();
 
                 info_message.embed.description = `${key} Activity Expired: ${new Date(Date.now())}`;
                 info_message.embed.fields = [];
@@ -94,22 +96,22 @@ export default class TodoTimeout
         }        
     }
 
-    async RemoveToDoTimeout(todo_key)
+    async RemoveToDoTimeout()
     {
         for (let [key, value] of active_timers)
         {
-            if (key === todo_key)
+            if (key === this.key)
             {
                 clearTimeout(value.reminder_timeout);
                 clearTimeout(value.expiration_timeout);
-                active_timers.delete(todo_key);
+                active_timers.delete(this.key);
             }
         }
     }
 
-    async CleanUpTodo(server_id, key)
+    async CleanUpTodo()
     {
-        let todo_list_json = await this.keyv.get(server_id);
+        let todo_list_json = await this.keyv.get(this.server_id);
         if (todo_list_json === undefined)
         {
             console.log(`Could not obtain todo_list_json.`);
@@ -119,10 +121,10 @@ export default class TodoTimeout
         let todo_list = new TodoList();
         todo_list.Deserialize(todo_list_json);
 
-        if (todo_list.TodoExists(key))
+        if (todo_list.TodoExists(this.key))
         {
-            todo_list.RemoveTodo(key);
-            await this.keyv.set(server_id, todo_list.Serialize());
+            todo_list.RemoveTodo(this.key);
+            await this.keyv.set(this.server_id, todo_list.Serialize());
         }
     }
 }
