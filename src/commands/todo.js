@@ -51,7 +51,7 @@ module.exports = {
             todo_query.GetList(message.guild);
 
             let todo_timeout = new TodoTimeout(message, todo_list, keyv);
-            todo_timeout.SetToDoTimeout(message.guild);
+            todo_timeout.SetToDoTimeout(server_id, message.guild);
         }
         return;
     },

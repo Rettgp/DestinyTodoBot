@@ -4,7 +4,7 @@ import { ReactionEmoji } from 'discord.js';
 import { BungieApi } from "./bungieapi/BungieApi"
 import ColorCode from './Color';
 
-let active_timers = [];
+let active_timers = new Map();
 
 export default class TodoTimeout
 {
@@ -15,11 +15,11 @@ export default class TodoTimeout
         this.keyv = keyv;
     }
 
-    async SetToDoTimeout(discord_guild)
+    async SetToDoTimeout(server_id, discord_guild)
     {
         for (let [key, value] of this.todo_list.GetTodos())
         {
-            if (key in active_timers)
+            if (active_timers.has(key))
             {
                 console.log(`${key} timeout already exists, do not add another.`);
                 continue;
@@ -49,6 +49,8 @@ export default class TodoTimeout
                 console.log(`expiration_timer: ${expiration_timer}`);
 
             var reminder_timeout = setTimeout(() => {
+                // TODO: (sky) if value.Date() is invalid, dont immediately remind. 
+                // use value.Expiration() as the reminder start point instead
                 info_message.embed.description = `${key} Activity Reminder: ${new Date(value.Date())}`;
                 info_message.embed.fields = [];
                 let mention_participants = "";
@@ -67,6 +69,7 @@ export default class TodoTimeout
             var expiration_timeout = setTimeout(() => {
                 if (this.todo_list.TodoExists(key))
                 {
+                    // TODO: (sky) This for what ever reason doesnt actually remove the todos
                     console.log(`removing todo: ${key}`);
                     this.todo_list.RemoveTodo(key);
                 }
@@ -81,22 +84,33 @@ export default class TodoTimeout
                 }
                 info_message.embed.fields.push({ name: `Participants:`, value: `${mention_participants}` });
                 this.message.channel.send(info_message);
-                  console.log(`${key} Activity Expirated: ${new Date(Date.now())}`);
+                  console.log(`${key} Activity Expired: ${new Date(Date.now())}`);
               }, expiration_timer);
 
+            console.log(`.reminder_timeout: ${reminder_timeout} .expiration_timeout: ${expiration_timeout}`);
+            active_timers.set( key, {reminder_timeout,expiration_timeout});
+        }
 
-            active_timers.push({ key: key, value: [reminder_timeout,expiration_timeout]});
+        for (let [key, value] of active_timers)
+        {
+            console.log(`active_timers Key: ${key} .reminder_timeout: ${value.reminder_timeout} .expiration_timeout: ${value.expiration_timeout}`);
         }
     }
 
     async RemoveToDoTimeout(todo_key)
     {
-        let [reminder_timeout, expiration_timeout] = active_timers[todo_key];
-        console.log(`clearing reminder timeout for ${todo_key}`);
-        clearTimeout(reminder_timeout);
-        console.log(`clearing expiration timeout for ${todo_key}`);
-        clearTimeout(expiration_timeout);
-
-        delete active_timers[todo_key];
+        for (let [key, value] of  active_timers)
+        {
+            console.log(`active_timers Key: ${key}`);
+            if (key === todo_key)
+            {
+                console.log(`clearing reminder timeout for ${todo_key}`);
+                clearTimeout(value.reminder_timeout);
+                console.log(`clearing expiration timeout for ${todo_key}`);
+                clearTimeout(value.expiration_timeout);
+                console.log(`active_timers Key: ${todo_key}`);
+                active_timers.delete(todo_key);
+            }
+        }
     }
 }
