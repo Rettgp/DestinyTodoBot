@@ -36,7 +36,7 @@ module.exports = {
             if (todo_list.TodoExists(todo_name))
             {
                 todo_list.RemoveTodo(todo_name);
-                let todo_timeout = new TodoTimeout(message, todo_list, keyv);
+                let todo_timeout = new TodoTimeout(message, keyv);
                 todo_timeout.RemoveToDoTimeout(todo_name);
                 await keyv.set(server_id, todo_list.Serialize());
             }

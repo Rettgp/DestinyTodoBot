@@ -6,51 +6,60 @@ import ColorCode from './Color';
 
 let active_timers = new Map();
 
+const TWO_HOUR_OFFSET_MS = (2 * 60 * 60 * 1000);
+
+const TWENTY_FOUR_HOUR_OFFSET_MS = (24 * 60 * 60 * 1000);
+
 export default class TodoTimeout
 {
-    constructor(message, todo_list, keyv)
+    constructor(message, keyv)
     {
         this.message = message;
-        this.todo_list = todo_list;
         this.keyv = keyv;
     }
 
     async SetToDoTimeout(server_id, discord_guild)
     {
-        for (let [key, value] of this.todo_list.GetTodos())
+        let todo_list_json = await this.keyv.get(server_id);
+        if (todo_list_json === undefined)
+        {
+            console.log(`todo_list_json_undefined`);
+            return;
+        }
+
+        let todo_list = new TodoList();
+        todo_list.Deserialize(todo_list_json);
+        
+        for (let [key, value] of todo_list.GetTodos())
         {
             if (active_timers.has(key))
             {
-                console.log(`${key} timeout already exists, do not add another.`);
+                //console.log(`${key} timeout already exists, do not add another.`);
                 continue;
-            }
-            console.log(`${key} timeout does not exist, add.`);
-            
-
+            }            
+    
             const info_message = {
                 embed: {
                     description: "",
                     color: ColorCode.DEFAULT,
-                    author: {
-                        name: "",
-                        icon_url: ""
-                    },
                     fields: [],
-                    footer: {
-                        text: ""
-                    }
                 }
             };
-
+    
             let now = Date.now();
-            let reminder_timer = (value.Date() - now) - (60 * 1000);
-                console.log(`reminder_timer: ${reminder_timer}`);
-            let expiration_timer = (value.Expiration() - now) - (24 * 60 * 60 * 1000);
-                console.log(`expiration_timer: ${expiration_timer}`);
 
+            let reminder_timer = (value.Expiration() - now) - TWO_HOUR_OFFSET_MS; //remind 2 hours before expiration
+            if (value.Date() != "")
+            {
+                reminder_timer = (value.Date() - now) - TWO_HOUR_OFFSET_MS; // remind 2 hours before activity date
+                if (reminder_timer < 0)
+                {
+                    // if the activity date is less than two hours from now, take half the difference.
+                    reminder_timer = ((value.Date() - now) / 2);
+                }
+            }
+            let expiration_timer = (value.Expiration() - now);
             var reminder_timeout = setTimeout(() => {
-                // TODO: (sky) if value.Date() is invalid, dont immediately remind. 
-                // use value.Expiration() as the reminder start point instead
                 info_message.embed.description = `${key} Activity Reminder: ${new Date(value.Date())}`;
                 info_message.embed.fields = [];
                 let mention_participants = "";
@@ -62,17 +71,12 @@ export default class TodoTimeout
                 }
                 info_message.embed.fields.push({ name: `Participants:`, value: `${mention_participants}` });
                 this.message.channel.send(info_message);
-                console.log(`${key} Activity Reminder: ${new Date(value.Date())}`);
               }, reminder_timer);
               
-
+    
             var expiration_timeout = setTimeout(() => {
-                if (this.todo_list.TodoExists(key))
-                {
-                    // TODO: (sky) This for what ever reason doesnt actually remove the todos
-                    console.log(`removing todo: ${key}`);
-                    this.todo_list.RemoveTodo(key);
-                }
+                this.CleanUpTodo(server_id, key);
+
                 info_message.embed.description = `${key} Activity Expired: ${new Date(Date.now())}`;
                 info_message.embed.fields = [];
                 let mention_participants = "";
@@ -84,33 +88,41 @@ export default class TodoTimeout
                 }
                 info_message.embed.fields.push({ name: `Participants:`, value: `${mention_participants}` });
                 this.message.channel.send(info_message);
-                  console.log(`${key} Activity Expired: ${new Date(Date.now())}`);
               }, expiration_timer);
-
-            console.log(`.reminder_timeout: ${reminder_timeout} .expiration_timeout: ${expiration_timeout}`);
+    
             active_timers.set( key, {reminder_timeout,expiration_timeout});
-        }
-
-        for (let [key, value] of active_timers)
-        {
-            console.log(`active_timers Key: ${key} .reminder_timeout: ${value.reminder_timeout} .expiration_timeout: ${value.expiration_timeout}`);
-        }
+        }        
     }
 
     async RemoveToDoTimeout(todo_key)
     {
-        for (let [key, value] of  active_timers)
+        for (let [key, value] of active_timers)
         {
-            console.log(`active_timers Key: ${key}`);
             if (key === todo_key)
             {
-                console.log(`clearing reminder timeout for ${todo_key}`);
                 clearTimeout(value.reminder_timeout);
-                console.log(`clearing expiration timeout for ${todo_key}`);
                 clearTimeout(value.expiration_timeout);
-                console.log(`active_timers Key: ${todo_key}`);
                 active_timers.delete(todo_key);
             }
+        }
+    }
+
+    async CleanUpTodo(server_id, key)
+    {
+        let todo_list_json = await this.keyv.get(server_id);
+        if (todo_list_json === undefined)
+        {
+            console.log(`Could not obtain todo_list_json.`);
+            return;
+        }
+
+        let todo_list = new TodoList();
+        todo_list.Deserialize(todo_list_json);
+
+        if (todo_list.TodoExists(key))
+        {
+            todo_list.RemoveTodo(key);
+            await this.keyv.set(server_id, todo_list.Serialize());
         }
     }
 }
