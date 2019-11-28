@@ -48,7 +48,7 @@ export default class TodoTimeout
                     reminder_timer = ((todo_entry.Date() - now) / 2);
                 }
             }
-            let expiration_timer = (todo_entry.Expiration() - now);
+            let expiration_timer = (todo_entry.Expiration() - now) - TWENTY_FOUR_HOUR_OFFSET_MS;
     
             let reminder_timeout = setTimeout(() => { this.SetTodoReminderTimeout(discord_guild)}, reminder_timer);
             let expiration_timeout = setTimeout(() =>  {this.SetToDoExpirationTimeout(discord_guild) }, expiration_timer);
@@ -67,19 +67,6 @@ export default class TodoTimeout
                 clearTimeout(value.expiration_timeout);
                 active_timers.delete(this.key);
             }
-        }
-    }
-
-    async CleanUpTodo()
-    {
-        let todo_list_json = await this.keyv.get(this.server_id);
-        let todo_list = new TodoList();
-        todo_list.Deserialize(todo_list_json);
-
-        if (todo_list.TodoExists(this.key))
-        {
-            todo_list.RemoveTodo(this.key);
-            await this.keyv.set(this.server_id, todo_list.Serialize());
         }
     }
 
@@ -146,9 +133,10 @@ export default class TodoTimeout
                 let discord_user_id = discord_guildmember.user.id;
                 mention_participants += `<@${discord_user_id}> `;
             }
-            this.CleanUpTodo();
             info_message.embed.fields.push({ name: `Participants:`, value: `${mention_participants}` });
             this.message.channel.send(info_message);
+            todo_list.RemoveTodo(this.key);
+            await this.keyv.set(this.server_id, todo_list.Serialize());
         }
     }
 }
