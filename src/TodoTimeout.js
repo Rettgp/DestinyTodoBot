@@ -48,7 +48,7 @@ export default class TodoTimeout
                     reminder_timer = ((todo_entry.Date() - now) / 2);
                 }
             }
-            let expiration_timer = (todo_entry.Expiration() - now) - TWENTY_FOUR_HOUR_OFFSET_MS;
+            let expiration_timer = (todo_entry.Expiration() - now);
     
             let reminder_timeout = setTimeout(() => { this.SetTodoReminderTimeout(discord_guild)}, reminder_timer);
             let expiration_timeout = setTimeout(() =>  {this.SetToDoExpirationTimeout(discord_guild) }, expiration_timer);
