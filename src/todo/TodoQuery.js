@@ -1,7 +1,7 @@
 import TodoEntry from "./TodoEntry";
 import TodoList from "./TodoList";
 import { ReactionEmoji } from 'discord.js';
-import { BungieApi } from "./bungieapi/BungieApi"
+import { BungieApi } from "../bungieapi/BungieApi"
 import ActivityHistory from "./ActivityHistory"
 
 export default class TodoQuery
