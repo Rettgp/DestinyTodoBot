@@ -39,7 +39,7 @@ export default class TodoTimeout
 
             let now = Date.now();
             let reminder_timer = (todo_entry.Expiration() - now) - TWO_HOUR_OFFSET_MS; //remind 2 hours before expiration
-            if (todo_entry.Date() != "")
+            if (todo_entry.Date() !== "")
             {
                 reminder_timer = (todo_entry.Date() - now) - TWO_HOUR_OFFSET_MS; // remind 2 hours before activity date
                 if (reminder_timer < 0)

@@ -28,7 +28,7 @@ export default class TodoQuery
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
         let characters = discord_destiny_profile.characters.split(",");
-        if (activity_type.length == 0 || activity_type == 0)
+        if (activity_type.length === 0 || activity_type === 0)
         {
             return  "Activity not found";
         }
@@ -66,12 +66,12 @@ export default class TodoQuery
             todo_message.embed.color = value.Color();
             todo_message.embed.author.name = key;
             todo_message.embed.author.icon_url = avatar_url;
-            if (value.Date() != "")
+            if (value.Date() !== "")
             {
                 let activity_date = new Date(value.Date());
                 todo_message.embed.footer.text = `Activity Date: ${activity_date}`;
             }
-            if (value.Expiration() != "")
+            if (value.Expiration() !== "")
             {
                 let expiration_date = new Date(value.Expiration());
                 todo_message.embed.footer.text += `\nExpiration Date: ${expiration_date}`;
