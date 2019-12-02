@@ -1,5 +1,5 @@
-import { BungieApi } from "./bungieapi/BungieApi"
-import { EquippableItem } from "./Item.js"
+import { BungieApi } from "../bungieapi/BungieApi"
+import { EquippableItem } from "../Item.js"
 let ASSERT = require("assert");
 
 // the maximum amount of time the character data 

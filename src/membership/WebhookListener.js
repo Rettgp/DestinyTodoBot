@@ -1,4 +1,4 @@
-import { BungieApi } from "./bungieapi/BungieApi"
+import { BungieApi } from "../bungieapi/BungieApi"
 const express = require('express');
 const https = require('https')
 const PORT = process.env.PORT || 3000;

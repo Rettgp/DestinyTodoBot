@@ -1,4 +1,4 @@
-import { BungieApi } from "./bungieapi/BungieApi"
+import { BungieApi } from "../bungieapi/BungieApi"
 
 export class Profile
 {
