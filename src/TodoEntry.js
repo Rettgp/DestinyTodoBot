@@ -1,13 +1,14 @@
 export default class TodoEntry
 {
-    constructor(author, author_avatar, type, date)
+    constructor(author, author_avatar, type, activity_date, expiration_date)
     {
         this.color = Math.floor(Math.random() * 16777214) + 1;
         this.participants = new Array();
         this.author = author;
         this.author_avatar = author_avatar;
         this.type = type;
-        this.date = date;
+        this.activity_date = activity_date;
+        this.expiration_date = expiration_date;
     }
 
     AddParticipant(person)
@@ -42,6 +43,11 @@ export default class TodoEntry
 
     Date()
     {
-        return this.date;
+        return this.activity_date;
+    }
+
+    Expiration()
+    {
+        return this.expiration_date;
     }
 }

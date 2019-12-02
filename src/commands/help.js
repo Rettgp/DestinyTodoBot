@@ -30,14 +30,14 @@ module.exports = {
                         'Allow Rasputin to access your character information\n' +
                         'Query a users current loadout, @username is optional\n' +
                         'Query a users current ranking, @username is optional\n' +
-                        'Add an item to do and when to do it in "( )"\n' +
+                        'Add an item to do and when; "( )"\n' +
                         'Query all todo items\n' +
                         'Mark a todo as completed\n',
                         inline: true
                     },
                     {
                         name: 'Example Command',
-                        value: '!todo Garden of Salvation (Saturday Night)\n',
+                        value: '!todo Garden of Salvation (12/31/19 5:00 PM)\n',
                         inline: false
                     }
                 ],

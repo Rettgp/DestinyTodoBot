@@ -3,6 +3,7 @@ import TodoQuery from '../TodoQuery'
 import { ReactionEmoji } from 'discord.js';
 import ColorCode from '../Color';
 import { BungieApi } from "../bungieapi/BungieApi"
+import TodoTimeout from '../TodoTimeout';
 
 module.exports = {
     name: 'todo',
@@ -48,6 +49,9 @@ module.exports = {
 
             let todo_query = new TodoQuery(message, todo_list, keyv);
             todo_query.GetList(message.guild);
+
+            let todo_timeout = new TodoTimeout(message, keyv, server_id, todo_name);
+            todo_timeout.SetToDoTimeout(message.guild);
         }
         return;
     },
