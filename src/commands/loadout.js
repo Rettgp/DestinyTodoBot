@@ -262,9 +262,9 @@ module.exports = {
             template_p = await AddSocketsToTemplate(template_p, heavy_weapon.Perks());
 
             let image_write_promises = [];
-            image_write_promises.push(template_k.write(`${tmp_asset_dir}/kinetic_result.png`));
-            image_write_promises.push(template_e.write(`${tmp_asset_dir}/energy_result.png`));
-            image_write_promises.push(template_p.write(`${tmp_asset_dir}/power_result.png`));
+            image_write_promises.push(template_k.writeAsync(`${tmp_asset_dir}/kinetic_result.png`));
+            image_write_promises.push(template_e.writeAsync(`${tmp_asset_dir}/energy_result.png`));
+            image_write_promises.push(template_p.writeAsync(`${tmp_asset_dir}/power_result.png`));
             Promise.all(image_write_promises).then(images => {
                 loadout_message.files[0].attachment = `${tmp_asset_dir}/kinetic_result.png`;
                 loadout_message.files[1].attachment = `${tmp_asset_dir}/energy_result.png`;
