@@ -17,9 +17,7 @@ class Destiny2{
 		Request        = new Ml.Request( ApiCreds );
 		this.Endpoints = require( __dirname + '/Endpoints.js');
 		this.Enums     = require( __dirname + '/Enums.js' );
-		this.Manifest  = {};
-		this.manifestFiles = [];
-		this.json_stream = StreamObject.withParser();
+		this.Manifest  = {"en": {}};
 		// NOTE: Add all used definitions for manifest here
 		this.DefinitionsToLoad = [
 			"DestinyInventoryItemDefinition",
@@ -28,19 +26,6 @@ class Destiny2{
 			"DestinyActivityTypeDefinition",
 			"DestinyProgressionDefinition",
 		]
-
-		this.json_stream.on('data', ({ key, value }) =>
-		{
-			if (this.DefinitionsToLoad.includes(key))
-			{
-				this.Manifest["en"][key] = value;
-			}
-		});
-
-		this.json_stream.on('end', () =>
-		{
-			console.log('Manifest Loaded');
-		});
 	}
 
 	/**
@@ -52,13 +37,18 @@ class Destiny2{
 		let readDir = Util.promisify( Fs.readdir );
 		let proms = [];
 		return readDir( __dirname + '/manifests').then( files => {
-			this.manifestFiles = files;
-			langs.forEach( lang => {
-				if( files.indexOf( lang + '.json' ) !== -1 )
-					proms.push( this.loadManifest( lang ) );
+			for (let definition of this.DefinitionsToLoad)
+			{
+				let filename = definition + ".json";
+				if(files.includes(filename))
+				{
+					proms.push( this.loadManifest(definition) );
+				}
 				else
-					proms.push( this.downloadManifest( lang ).then( x => this.loadManifest( lang ) ) );
-			} );
+				{
+					proms.push( this.downloadManifest(definition).then( x => proms.push( this.loadManifest(definition) ) ) );
+				}
+			}
 
 			return Promise.all( proms ).then( x => "Destiny2 initialized" );
 		} );
@@ -69,26 +59,20 @@ class Destiny2{
 	 * @param { Array.string } [language=['all']] - The language of manifest to load
 	 * @returns { Promise }
 	 */
-	async loadManifest( lang = 'en' ){
+	async loadManifest(definition_name){
 		var startPath = __dirname + '/manifests/';
-
-		return Util.promisify( Fs.readdir )( startPath ).then( files => {
-			this.manifestFiles = files;
-			let proms = [];
-			files.forEach( file => {
-				// Each manifest file is named lang.json. For instance the 'en' manifest JSON file is named en.json.
-				if( lang === 'all' || file === lang + '.json' ){
-					this.Manifest[lang] = [];
-					const filename = Path.join(startPath, file);
-					Fs.createReadStream(filename).pipe(this.json_stream.input);
+		return new Promise((resolve, reject) =>
+		{
+			Fs.readFile(Path.join(startPath, definition_name + ".json"), (err, data) =>
+			{
+				if (err) 
+				{
+					reject(err);
 				}
-			} );
-
-			if( proms.length === 0 )
-				return false;
-			else
-				return Promise.all( proms ).then( x => this.Manifest );
-		} )
+				this.Manifest["en"][definition_name] = JSON.parse(data);
+				resolve(this.Manifest);
+			});
+		});
 	}
 
 	/**
@@ -97,13 +81,10 @@ class Destiny2{
 	 * @returns { Promise }
 	 * @see {@link https://github.com/vpzed/Destiny2-API-Info/wiki/API-Introduction-Part-3-Manifest|Destiny2 Manifest Intro} for more information
 	 */
-	async downloadManifest( lang = 'en' ){
-		let manifestContent = await this.getMeta().then( Meta => Request.get( this.Endpoints.rootrootPath + Meta.Response.jsonWorldContentPaths[ lang ], false ) );
-		let path = __dirname + '/manifests/' + lang + '.json';
-		Fs.writeFile( path, JSON.stringify( manifestContent ), err => {
-			if( err ) throw err;
-			return path;
-		} )
+	async downloadManifest(definition_name){
+		let manifestContent = await this.getMeta().then( Meta => Request.get( this.Endpoints.rootrootPath + Meta.Response.jsonWorldComponentContentPaths["en"][definition_name], false ) );
+		let path = __dirname + '/manifests/' + definition_name + '.json';
+		Fs.writeFileSync( path, JSON.stringify( manifestContent ) );
 	}
 
 	/**
