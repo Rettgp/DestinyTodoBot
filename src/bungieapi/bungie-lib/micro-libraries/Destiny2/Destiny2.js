@@ -463,12 +463,13 @@ class Destiny2{
 			// Create CSV string
 			Opts.components = Opts.components.join( "," );
 
-			return 	Ml.renderEndpoint( this.Endpoints.getVendors, {
-				characterId           : Opts.characterId,
-				membershipType : Opts.mType,
-				membershipId   : Opts.membershipId,
-				vendorHash            : Opts.vendorHash
-			}, { components : Opts.components } ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
+			return 	Ml.renderEndpoint( this.Endpoints.getVendor, {
+				characterId: 	Opts.characterId,
+				membershipType: Opts.mType,
+				membershipId: 	Opts.membershipId,
+				vendorHash: 	Opts.vendorHash
+			}, { components : Opts.components } )
+			.then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
 		});
 	}
 
