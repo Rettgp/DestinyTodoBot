@@ -1,4 +1,4 @@
-import { BungieApi } from "../bungieapi/BungieApi"
+import { BungieApi } from "bungieapi/BungieApi"
 let ASSERT = require("assert");
 
 // the maximum amount of time the vendor data 

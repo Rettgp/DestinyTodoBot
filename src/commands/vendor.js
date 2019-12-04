@@ -1,5 +1,5 @@
-import ColorCode from '../utility/Color.js';
-import { Vendors } from '../vendors/VendorInfo.js';
+import ColorCode from 'utility/Color.js';
+import { Vendors } from 'vendors/VendorInfo.js';
 
 module.exports = {
     name: 'vendor',
