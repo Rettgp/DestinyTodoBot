@@ -1,4 +1,5 @@
 import { BungieApi } from "bungieapi/BungieApi"
+import { OAuth } from "membership/oAuth"
 const express = require('express');
 const https = require('https')
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ export default class WebhookListener
         });
         app.get('/oAuth', (req, res) =>
         {
+            let oAuth_helper = new OAuth;
             let code = req.query.code;
             BungieApi.requestAccessToken(code).then( async(oAuth) =>
             {
@@ -59,6 +61,8 @@ export default class WebhookListener
                     characters: char_db_value,
                     membership_type: membership_type_val
                 }
+
+                oAuth_helper.Set(destiny_membership_id, oAuth);
                 await this.keyv.set(this.message.guild.id + "-" + this.message.author.id, JSON.stringify(discord_destiny_profile));
                 this.message.channel.send(`${this.message.author.username} authorization sync completed!`);
             });
