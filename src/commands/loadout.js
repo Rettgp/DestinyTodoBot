@@ -144,7 +144,6 @@ module.exports = {
 
             if (!character.Valid())
             {
-                console.log("Not valuid");
                 continue;
             }
 
