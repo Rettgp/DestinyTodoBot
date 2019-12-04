@@ -461,7 +461,7 @@ class Destiny2{
 	 * @returns { Promise }
 	 * @see {@link https://bungie-net.github.io/multi/operation_get_Destiny2-GetVendor.html#operation_get_Destiny2-GetVendor|Destiny2.GetVendor} for more information
 	 */
-	getVendor( Opts ){
+	getVendor( Opts, oAuth ){
 		let proms = [ Ml.enumLookup( Opts.mType, this.Enums.bungieMembershipType ) ];
 		// For each component, lookup
 		Opts.components.forEach( c => {
@@ -485,7 +485,7 @@ class Destiny2{
 				membershipId: 	Opts.membershipId,
 				vendorHash: 	Opts.vendorHash
 			}, { components : Opts.components } )
-			.then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
+			.then( endpoint => Request.get( this.Endpoints.rootPath + endpoint, oAuth ) );
 		});
 	}
 
