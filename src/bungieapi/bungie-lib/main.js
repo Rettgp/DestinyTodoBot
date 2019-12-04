@@ -112,6 +112,11 @@ class BungieLib{
 		this.authUri = this.Endpoints.authorization + "?response_type=code&client_id=" + this.ApiCreds.clientId;
 	}
 
+	ApiCreds()
+	{
+		return this.ApiCreds;
+	}
+
 	/**
 	 * List of available localization cultures
 	 * @returns { Promise }

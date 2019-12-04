@@ -55,6 +55,7 @@ export class Character
             {
                 this.valid = false;
                 this.execption_message = e.Message;
+                console.log(e);
                 return [false, e.Message];
             } 
 

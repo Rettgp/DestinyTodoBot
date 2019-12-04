@@ -153,7 +153,6 @@ module.exports = {
             if (date_last_played > date_time)
             {
                 latest_char = character;
-                console.log(latest_char)
                 date_time = date_last_played;
             }
         }
