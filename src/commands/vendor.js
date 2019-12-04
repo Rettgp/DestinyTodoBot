@@ -12,14 +12,9 @@ module.exports = {
                 title: "",
                 description: "",
                 color: ColorCode.DEFAULT,
-                thumbnail: "",
-                footer: {
-                    icon_url: "",
-                    text: new Date(Date.now()),
-                },
-                image: {
-                    url: "",
-                },
+                thumbnail: { url: "" },
+                footer: { icon_url: "", text: new Date(Date.now()),},
+                image: { url: "" },
                 fields: [],
             }
         };
@@ -55,10 +50,6 @@ module.exports = {
         let character_keys = discord_destiny_profile.characters.split(",");
         let character_id = character_keys[0]; // TODO: Might be nice to get latest character at some point
 
-        // let available_vendors = {
-        //     SPIDER: 863940356,
-        //     XUR: 2190858386,
-        // }; 
         let vendor = new Vendors(character_id, membership_type, destiny_membership_id);
         let [vendor_valid, vendor_result] = await vendor.RequestVendors();
         if (!vendor_valid)
@@ -66,7 +57,6 @@ module.exports = {
             console.log(`vendor_valid: ${vendor_sales_valid} .vendor_result: ${vendor_sales_result}`);
             return " " + vendor_result;
         }
-
         let vendor_user_input = args[0].toUpperCase();
         let vendor_hash = vendor.FindVendorHash(vendor_user_input);
         if (vendor_hash === 0)
@@ -74,12 +64,11 @@ module.exports = {
             console.log(`unable to find vendor hash`);
             return;
         }
-
         let vendor_data = vendor.GetVendorInfo(vendor_hash);
         vendor_message.embed.title = vendor_data.name;
         vendor_message.embed.description = vendor_data.subtitle;
-        vendor_message.embed.image = vendor_data.large_icon;
-        vendor_message.embed.thumbnail = vendor_data.thumbnail;
+        vendor_message.embed.image.url = vendor_data.large_icon;
+        vendor_message.embed.thumbnail.url = vendor_data.thumbnail;
         vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
 
         let [vendor_sales_valid, vendor_sales_result] = await vendor.RequestSales(vendor_hash);
@@ -88,12 +77,13 @@ module.exports = {
             console.log(`vendor_sales_valid: ${vendor_sales_valid} .vendor_sales_result: ${vendor_sales_result}`);
             return " " + vendor_sales_result;
         }
-        let vendor_sale_items = vendor.GetVendorSaleItems();
+        let vendor_sale_items = vendor.GetVendorSaleItems(vendor_hash);
         for (let item in vendor_sale_items)
         {
+            let vendor_object = vendor_sale_items[item];
             vendor_message.embed.fields.push({
-                name: `${item.item_quantity} ${item.item_name}`, 
-                value: `Cost: ${item.cost_item_quantity} ${item.cost_item_name}`, inline: `true`
+                name: `Qty: ${vendor_object.item_quantity} ${vendor_object.item_name}`, 
+                value: `Cost: ${vendor_object.cost_item_quantity} ${vendor_object.cost_item_name}`, inline: `false`
             });
         }
         message.channel.send(vendor_message);

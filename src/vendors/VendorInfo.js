@@ -26,7 +26,8 @@ export class Vendors
     }
 
     async RequestVendors()
-    { let stored_vendors = s_vendors.get(this.char_options.characterId);
+    { 
+        let stored_vendors = s_vendors.get(this.char_options.characterId);
         let should_request = (stored_vendors === undefined) ||
             (Date.now() - stored_vendors.last_updated) >= MAX_VENDOR_STALENESS
         this.char_options.components = [
@@ -126,20 +127,33 @@ export class Vendors
         return vendor;
     }
 
-    GetVendorSaleItems()
+    GetVendorSaleItems(vendor_hash)
     {
         let items = [];
-        let sale_items = this.vendor_sales.data.saleItems;
-        for (let item in sale_items)
+        let sale_items = this.vendor_sales.data[vendor_hash].saleItems;
+        for (let vendorItemIndex in sale_items)
         {
+            let item_object = sale_items[vendorItemIndex];
+            let item_costs = sale_items[vendorItemIndex].costs;
+            let cost_name = "";
+            let cost_icon = "";
+            let cost_quantity = "";
+
+            if (item_costs.length > 0)
+            {
+                cost_name = BungieApi.Destiny2.getManifestItemName(item_costs[0].itemHash);
+                cost_icon = BungieApi.Destiny2.getManifestItemIcon(item_costs[0].itemHash);
+                cost_quantity = item_costs[0].quantity;
+            }
+
             let sale_item = {
-                vendor_item_index: item.vendorItemIndex,
-                item_name: BungieApi.Destiny2.getManifestItemName(item.itemHash),
-                item_icon: BungieApi.Destiny2.getManifestItemIcon(item.itemHash),
-                item_quantity: item.quantity,
-                cost_item_name: BungieApi.Destiny2.getManifestItemName(item.costs[0].itemHash),
-                cost_item_icon: BungieApi.Destiny2.getManifestItemIcon(item.costs[0].itemHash),
-                cost_item_quantity: item.cost[0].quantity,
+                vendor_item_index: item_object.vendorItemIndex,
+                item_name: BungieApi.Destiny2.getManifestItemName(item_object.itemHash),
+                item_icon: BungieApi.Destiny2.getManifestItemIcon(item_object.itemHash),
+                item_quantity: item_object.quantity,
+                cost_item_name: cost_name,
+                cost_item_icon: cost_icon,
+                cost_item_quantity: cost_quantity,
             };
             items.push(sale_item);
         }
