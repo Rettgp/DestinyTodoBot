@@ -1,8 +1,8 @@
-import TodoList from '../TodoList'
+import TodoList from 'todo/TodoList'
 import { ReactionEmoji } from 'discord.js';
-import ColorCode from '../Color';
-import { BungieApi } from "../bungieapi/BungieApi"
-import TodoTimeout from '../TodoTimeout';
+import ColorCode from 'utility/Color';
+import { BungieApi } from "bungieapi/BungieApi"
+import TodoTimeout from 'todo/TodoTimeout';
 
 module.exports = {
     name: 'complete',

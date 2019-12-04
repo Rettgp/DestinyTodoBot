@@ -1,6 +1,6 @@
-import { BungieApi } from "../bungieapi/BungieApi"
-import { Character } from "../CharacterInfo.js"
-import ColorCode from '../Color';
+import { BungieApi } from "bungieapi/BungieApi"
+import { Character } from "character/CharacterInfo.js"
+import ColorCode from 'utility/Color';
 
 async function GetHistoricalAccountStats(options)
 {

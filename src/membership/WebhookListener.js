@@ -1,4 +1,4 @@
-import { BungieApi } from "../bungieapi/BungieApi"
+import { BungieApi } from "bungieapi/BungieApi"
 const express = require('express');
 const https = require('https')
 const PORT = process.env.PORT || 3000;
@@ -25,8 +25,8 @@ export default class WebhookListener
         if (process.env.DEV.toString().trim() === '1')
         {
             https.createServer({
-                key: fs.readFileSync(__dirname + '/server.key'),
-                cert: fs.readFileSync(__dirname + '/server.cert')
+                key: fs.readFileSync(__dirname + '/../server.key'),
+                cert: fs.readFileSync(__dirname + '/../server.cert')
             }, app).listen(PORT);
         }
 

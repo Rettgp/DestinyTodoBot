@@ -1,4 +1,4 @@
-import TodoEntry from "./TodoEntry";
+import TodoEntry from "todo/TodoEntry";
 
 export default class TodoList
 {

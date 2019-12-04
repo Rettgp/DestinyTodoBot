@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const fs = require("fs");
-import ReactionHandler from "./ReactionHandler"
-import WebhookListener from "./WebhookListener"
+import ReactionHandler from "todo/ReactionHandler"
+import WebhookListener from "membership/WebhookListener"
 import Keyv from 'keyv';
 const keyv = new Keyv(process.env.PROD_MONGODB);
 const bot_prod_id = 'NjI1ODMxMjcwMTY5MTgyMjI4.XYleEg.vJwUi1YZVVdtgq2bATnRwIXJQo4';

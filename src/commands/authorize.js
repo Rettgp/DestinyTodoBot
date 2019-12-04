@@ -1,5 +1,5 @@
-import { BungieApi } from "../bungieapi/BungieApi"
-import ColorCode from '../Color';
+import { BungieApi } from "bungieapi/BungieApi"
+import ColorCode from 'utility/Color';
 
 module.exports = {
     name: 'authorize',

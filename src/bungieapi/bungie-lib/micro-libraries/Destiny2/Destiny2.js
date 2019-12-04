@@ -36,7 +36,12 @@ class Destiny2{
 	async init( langs = [ 'en' ] ){
 		let readDir = Util.promisify( Fs.readdir );
 		let proms = [];
-		return readDir( __dirname + '/manifests').then( files => {
+		let manifests_dir = __dirname + '/manifests';
+		if (!Fs.existsSync(manifests_dir))
+		{
+			Fs.mkdirSync(manifests_dir);
+		}
+		return readDir(manifests_dir).then( files => {
 			for (let definition of this.DefinitionsToLoad)
 			{
 				let filename = definition + ".json";

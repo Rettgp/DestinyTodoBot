@@ -1,7 +1,7 @@
 
 import Discord from 'discord.js';
-import TodoList from './TodoList'
-import TodoQuery from './TodoQuery'
+import TodoList from 'todo/TodoList'
+import TodoQuery from 'todo/TodoQuery'
 
 export default class ReactionHandler
 {
