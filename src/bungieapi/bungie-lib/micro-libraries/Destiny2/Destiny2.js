@@ -485,6 +485,16 @@ class Destiny2{
 	}
 
 	/**
+	 * Get items available from vendors where the vendors have items for sale that are common for everyone.
+	 * @param { Array.<module:Destiny2/Enum~destinyComponentType> } components
+	 */
+	getPublicVendors( components ){
+		let endpoint_string = this.Endpoints.rootPath + this.Endpoints.getPublicVendors + "?components=" + components;
+		console.log(endpoint_string);
+		return Request.get( endpoint_string );
+	}
+
+	/**
 	 * Transfer an item to/from your vault. You must have a valid Destiny account. You must also pass BOTH a reference AND an instance ID if it's an instanced item. itshappening.gif
 	 * @param { Object } Options - the data required to complete this API call
 	 *   @param { number-like } Options.itemReferenceHash -

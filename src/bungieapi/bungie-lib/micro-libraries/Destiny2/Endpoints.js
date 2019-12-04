@@ -27,6 +27,8 @@ const endpoints = {
 	getVendors : "/Destiny2/{membershipType}/Profile/{membershipId}/Character/{characterId}/Vendors/",
 	/** Get the details of a specific Vendor. */
 	getVendor : "/Destiny2/{membershipType}/Profile/{membershipId}/Character/{characterId}/Vendors/{vendorHash}/",
+	/** Get items available from vendors where the vendors have items for sale that are common for everyone. */
+	getPublicVendors : "/Destiny2/Vendors/",
 	/** Given a Presentation Node that has Collectibles as direct descendants, this will return item details about those descendants in the context of the requesting character. */
 	getCollectibleNodeDetails : "/Destiny2/{membershipType}/Profile/{membershipId}/Character/{characterId}/Collectibles/{collectiblePresentationNodeHash}/",
 	/** Transfer an item to/from your vault. You must have a valid Destiny account. You must also pass BOTH a reference AND an instance ID if it's an instanced item. itshappening.gif */
