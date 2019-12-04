@@ -25,12 +25,6 @@ module.exports = {
             return;
         }
 
-        if (args.length !== 1)
-        {
-            console.log(`arguments length incorrect`);
-            return;
-        }
-
         let user_key = message.author;
         if (message.mentions.members.size === 1)
         {
@@ -57,7 +51,7 @@ module.exports = {
             console.log(`vendor_valid: ${vendor_sales_valid} .vendor_result: ${vendor_sales_result}`);
             return " " + vendor_result;
         }
-        let vendor_user_input = args[0].toUpperCase();
+        let vendor_user_input = args.join(" ").toUpperCase();
         let vendor_hash = vendor.FindVendorHash(vendor_user_input);
         if (vendor_hash === 0)
         {
@@ -77,13 +71,13 @@ module.exports = {
             console.log(`vendor_sales_valid: ${vendor_sales_valid} .vendor_sales_result: ${vendor_sales_result}`);
             return " " + vendor_sales_result;
         }
-        let vendor_sale_items = vendor.GetVendorSaleItems(vendor_hash);
+        let vendor_sale_items = vendor.GetVendorSaleItems();
         for (let item in vendor_sale_items)
         {
             let vendor_object = vendor_sale_items[item];
             vendor_message.embed.fields.push({
                 name: `Qty: ${vendor_object.item_quantity} ${vendor_object.item_name}`, 
-                value: `Cost: ${vendor_object.cost_item_quantity} ${vendor_object.cost_item_name}`, inline: `false`
+                value: `Cost: ${vendor_object.cost_item_quantity} ${vendor_object.cost_item_name}`, inline: `true`
             });
         }
         message.channel.send(vendor_message);
