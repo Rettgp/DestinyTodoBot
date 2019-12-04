@@ -6,6 +6,7 @@ let ASSERT = require("assert");
 const MAX_VENDOR_STALENESS = 10 * 60 * 1000;
 
 let s_vendor_sales = new Map();
+let s_vendors = new Map();
 
 export class Vendors
 {
@@ -21,9 +22,46 @@ export class Vendors
         this.valid = false;
         this.execption_message = "";
         this.vendor_sales = [];
+        this.vendors = [];
     }
 
-    async Request(vendorHash)
+    async RequestVendors()
+    { let stored_vendors = s_vendors.get(this.char_options.characterId);
+        let should_request = (stored_vendors === undefined) ||
+            (Date.now() - stored_vendors.last_updated) >= MAX_VENDOR_STALENESS
+        this.char_options.components = [
+                BungieApi.Destiny2.Enums.destinyComponentType.VENDORS
+        ];
+        
+        if (should_request)
+        {
+            let resp = "";
+            try
+            {
+                resp = await BungieApi.Destiny2.getVendors(this.char_options);
+            } 
+            catch (e)
+            {
+                this.valid = false;
+                this.execption_message = e.Message;
+                return [false, e.Message];
+            } 
+
+            this.vendors = resp.Response.vendor;
+            s_vendors.set(this.char_options.characterId, {
+                value: resp.Response.vendor,
+                last_updated: Date.now()
+            });
+        }
+        else
+        {
+            this.vendors = stored_vendors.value;
+        }
+
+        return [true, "Success"];
+    }
+
+    async RequestSales(vendorHash)
     {
         let stored_vendor_sales = s_vendor_sales.get(this.char_options.characterId);
         let should_request = (stored_vendor_sales === undefined) ||
@@ -39,7 +77,6 @@ export class Vendors
             try
             {
                 resp = await BungieApi.Destiny2.getVendor(this.char_options);
-                console.log(`response: ${resp}`);
             } 
             catch (e)
             {
@@ -62,9 +99,18 @@ export class Vendors
         return [true, "Success"];
     }
 
-    VendorSales()
+    FindVendorHash(vendor_name)
     {
-        return this.vendor_sales;
+        for (let vendor in this.vendors)
+        {
+            let vendor_hash = vendor.data.vendorHash;
+            let name = BungieApi.Destiny2.getManifestVendorName(vendor_hash).toUpperCase();
+            if (vendor_name === name)
+            {
+                return vendor_hash;
+            }
+        }
+        return 0;
     }
 
     GetVendorInfo(vendor_hash)

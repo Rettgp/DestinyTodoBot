@@ -188,6 +188,11 @@ class Destiny2{
 		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"];
 	}
 
+	getManifestVendorName(hash)
+	{
+		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"]["name"];
+	}
+
 	findActivityMode(activity_string)
 	{
 		if (activity_string === "0" || activity_string == 0)
