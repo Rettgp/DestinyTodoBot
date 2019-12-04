@@ -7,11 +7,20 @@ module.exports = {
     async execute(message, args, keyv)
     {
         let server_id = message.guild.id;
-        const info_message = {
+        const vendor_message = {
             embed: {
                 title: "",
-                fields: [],
+                description: "",
                 color: ColorCode.DEFAULT,
+                thumbnail: "",
+                footer: {
+                    icon_url: "",
+                    text: new Date(Date.now()),
+                },
+                image: {
+                    url: "",
+                },
+                fields: [],
             }
         };
 
@@ -25,9 +34,9 @@ module.exports = {
         let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
         if (discord_destiny_profile_json === undefined)
         {
-            info_message.embed.description = `${user_key.username} has not authorized me yet :(`
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
+            vendor_message.embed.description = `${user_key.username} has not authorized me yet :(`
+            vendor_message.embed.color = ColorCode.RED;
+            message.channel.send(vendor_message);
             return;
         }
 
@@ -44,7 +53,36 @@ module.exports = {
             XUR: 2190858386,
         }; 
 
-        let [vendor_valid, vendor_result] = await vendor.Request(available_vendors.SPIDER);
+        if (args.length < 1)
+        {
+            console.log(`no vendor specified`);
+            return;
+        }
+
+        if (args.length !== 1)
+        {
+            console.log(`arguments length incorrect`);
+            return;
+        }
+
+        // This is testing code. I think i should be able to query to get all vendor 
+        // hashes and string compare the user input to vendor name.
+        let vendor_input = args[0].toUpperCase();
+        let vendor_hash = 0;
+        switch (vendor_input)
+        {
+            case "SPIDER":
+                vendor_hash = available_vendors.SPIDER;
+            break;
+            case "XUR":
+                vendor_hash = available_vendors.XUR;
+            break; 
+            default:
+                console.log(`unknown vendor`);
+                return;   
+        }
+
+        let [vendor_valid, vendor_result] = await vendor.Request(vendor_hash);
         if (!vendor_valid)
         {
             console.log(`vendor_valid: ${vendor_valid}`);
@@ -52,13 +90,22 @@ module.exports = {
             return " " + vendor_result;
         }
 
-        let vendor_sales = vendor.VendorSales();
+        let vendor_data = vendor.GetVendorInfo(vendor_hash);
+        vendor_message.embed.title = vendor_data.name;
+        vendor_message.embed.description = vendor_data.subtitle;
+        vendor_message.embed.image = vendor_data.large_icon;
+        vendor_message.embed.thumbnail = vendor_data.thumbnail;
+        vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
 
-        if (vendor_sales === undefined)
+        let vendor_sale_items = vendor.GetVendorSaleItems();
+        for (let item in vendor_sale_items)
         {
-            console.log(`vendor_sales === undefined`);
-            return " ";
+            vendor_message.embed.fields.push({
+                name: `${item.item_quantity} ${item.item_name}`, 
+                value: `Cost: ${item.cost_item_quantity} ${item.cost_item_name}`, inline: `true`
+            });
         }
+        message.channel.send(vendor_message);
 
         return;
     },

@@ -38,7 +38,7 @@ export class Vendors
             let resp = "";
             try
             {
-                resp = await BungieApi.Destiny2.getVendors(this.char_options);
+                resp = await BungieApi.Destiny2.getVendor(this.char_options);
                 console.log(`response: ${resp}`);
             } 
             catch (e)
@@ -65,5 +65,38 @@ export class Vendors
     VendorSales()
     {
         return this.vendor_sales;
+    }
+
+    GetVendorInfo(vendor_hash)
+    {
+        let vendor_display_properties = BungieApi.Destiny2.getManifestVendorDisplayProperties(vendor_hash);
+        let vendor = {
+            name: vendor_display_properties.name,
+            subtitle: vendor_display_properties.subtitle,
+            large_icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.largeIcon}`,
+            thumbnail: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.mapIcon}`,
+            footer_icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.smallTransparentIcon}`,
+        };
+        return vendor;
+    }
+
+    GetVendorSaleItems()
+    {
+        let items = [];
+        let sale_items = this.vendor_sales.data.saleItems;
+        for (let item in sale_items)
+        {
+            let sale_item = {
+                vendor_item_index: item.vendorItemIndex,
+                item_name: BungieApi.Destiny2.getManifestItemName(item.itemHash),
+                item_icon: BungieApi.Destiny2.getManifestItemIcon(item.itemHash),
+                item_quantity: item.quantity,
+                cost_item_name: BungieApi.Destiny2.getManifestItemName(item.costs[0].itemHash),
+                cost_item_icon: BungieApi.Destiny2.getManifestItemIcon(item.costs[0].itemHash),
+                cost_item_quantity: item.cost[0].quantity,
+            };
+            items.push(sale_item);
+        }
+        return items;
     }
 }

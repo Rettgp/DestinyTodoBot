@@ -25,6 +25,7 @@ class Destiny2{
 			"DestinyActivityDefinition",
 			"DestinyActivityTypeDefinition",
 			"DestinyProgressionDefinition",
+			"DestinyVendorDefinition",
 		]
 	}
 
@@ -180,6 +181,11 @@ class Destiny2{
 	getManifestProgressionSteps(hash)
 	{
 		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["steps"];
+	}
+
+	getManifestVendorDisplayProperties(hash)
+	{
+		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"];
 	}
 
 	findActivityMode(activity_string)
