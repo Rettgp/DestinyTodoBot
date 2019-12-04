@@ -1,6 +1,4 @@
-import TodoList from '../TodoList'
-import { ReactionEmoji } from 'discord.js';
-import ColorCode from '../Color';
+import ColorCode from 'utility/Color';
 
 module.exports = {
     name: 'help',

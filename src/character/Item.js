@@ -1,5 +1,5 @@
-import { BungieApi } from "./bungieapi/BungieApi"
-import { Perk } from "./Perk.js"
+import { BungieApi } from "bungieapi/BungieApi"
+import { Perk } from "character/Perk.js"
 
 class Item
 {

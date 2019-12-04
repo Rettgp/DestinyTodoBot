@@ -1,5 +1,5 @@
-import TodoList from "./TodoList";
-import ColorCode from './Color';
+import TodoList from "todo/TodoList";
+import ColorCode from 'utility/Color';
 
 let active_timers = new Map();
 

@@ -1,7 +1,7 @@
-import TodoList from '../TodoList'
+import TodoList from 'todo/TodoList'
 import { ReactionEmoji } from 'discord.js';
-import TodoQuery from '../TodoQuery';
-import ColorCode from '../Color';
+import TodoQuery from 'todo/TodoQuery';
+import ColorCode from 'utility/Color';
 
 module.exports = {
     name: 'todos',

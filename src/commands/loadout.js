@@ -1,12 +1,10 @@
-import { Character } from "../CharacterInfo.js"
-import ColorCode from '../Color';
+import { Character } from "character/CharacterInfo.js"
+import ColorCode from 'utility/Color';
 import fs from 'fs';
 const path = require('path');
-import { rejects } from "assert";
-import { resolve } from "path";
 let Jimp = require("jimp");
 var text2png = require('text2png');
-const tmp_asset_dir = "./assets/tmp";
+const tmp_asset_dir = "assets/tmp";
 
 async function AddSocketsToTemplate(template, sockets)
 {
@@ -136,7 +134,7 @@ module.exports = {
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
         let character_ids = discord_destiny_profile.characters.split(",");
-        let latest_char = {};
+        let latest_char = null
         let date_time = 0;
         let characters = []
         for (let char_id of character_ids)
@@ -155,6 +153,7 @@ module.exports = {
             if (date_last_played > date_time)
             {
                 latest_char = character;
+                console.log(latest_char)
                 date_time = date_last_played;
             }
         }
