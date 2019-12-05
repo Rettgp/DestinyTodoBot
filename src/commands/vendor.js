@@ -29,10 +29,6 @@ module.exports = {
         }
 
         let user_key = message.author;
-        if (message.mentions.members.size === 1)
-        {
-            user_key = message.mentions.members.first().user;
-        }
         let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
         if (discord_destiny_profile_json === undefined)
         {
@@ -81,7 +77,7 @@ module.exports = {
             message.channel.send(vendor_message);
             return;
         }
-        let vendor_data = vendor.GetVendorInfo();
+        let vendor_data = vendor.GetVendorInfo(vendor_hash);
         vendor_message.embed.title = vendor_data.name;
         vendor_message.embed.description = vendor_data.subtitle;
         vendor_message.embed.image.url = vendor_data.large_icon;
@@ -89,10 +85,9 @@ module.exports = {
         vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
         vendor_message.embed.footer.text = `Reset: ${new Date(vendor_data.footer_text)}`;
 
-        let vendor_sale_items = vendor.GetVendorSaleItems();
-        for (let item in vendor_sale_items)
+        let vendor_sale_items = vendor.GetVendorSaleItems(vendor_hash);
+        for (let vendor_object of Object.values(vendor_sale_items))
         {
-            let vendor_object = vendor_sale_items[item];
             let quantity = vendor_object.item_quantity;
             if (quantity === 1)
             {
@@ -101,9 +96,8 @@ module.exports = {
 
             let name = `${vendor_object.item_name} ${quantity}`;
             let cost = "";
-            for (var cost_item in vendor_object.item_costs)
+            for (var c_item of Object.values(vendor_object.item_costs))
             {
-                let c_item = vendor_object.item_costs[cost_item];
                 cost += `Cost: ${c_item.quantity} ${c_item.name}\n`;
             }
             if (cost === "")

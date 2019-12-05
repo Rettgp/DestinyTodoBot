@@ -22,7 +22,6 @@ export class Vendors
         this.valid = false;
         this.execption_message = "";
         this.vendors = [];
-        this.vendor_hash = 0;
     }
 
     async Request()
@@ -68,7 +67,7 @@ export class Vendors
     FindVendorHash(vendor_name)
     {
         let best_rating = 0.5;
-        for (let vendor in this.vendors.vendors.data)
+        for (let vendor of Object.keys(this.vendors.vendors.data))
         {
             if (vendor === undefined)
             {
@@ -79,46 +78,44 @@ export class Vendors
             let rating = StringSimilarity.compareTwoStrings(vendor_name, name);
             if (rating >= best_rating)
             {
-                this.vendor_hash = vendor;
                 return vendor;
             }
         }
         return 0;
     }
 
-    GetVendorInfo()
+    GetVendorInfo(vendor_hash)
     {
-        let vendor_display_properties = BungieApi.Destiny2.getManifestVendorDisplayProperties(this.vendor_hash);
+        let vendor_display_properties = BungieApi.Destiny2.getManifestVendorDisplayProperties(vendor_hash);
         let vendor = {
             name: vendor_display_properties.name,
             subtitle: vendor_display_properties.subtitle,
             large_icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.largeIcon}`,
             thumbnail: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.mapIcon}`,
             footer_icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${vendor_display_properties.smallTransparentIcon}`,
-            footer_text: Date.parse(this.vendors.vendors.data[this.vendor_hash].nextRefreshDate),
+            footer_text: Date.parse(this.vendors.vendors.data[vendor_hash].nextRefreshDate),
         };
         return vendor;
     }
 
-    GetVendorSaleItems()
+    GetVendorSaleItems(vendor_hash)
     {
         let items = [];
-        let sale_items = this.vendors.sales.data[this.vendor_hash].saleItems;
-        for (var item in sale_items)
+        let sale_items = this.vendors.sales.data[vendor_hash].saleItems;
+        for (var item_object of Object.values(sale_items))
         {
-            let item_object = sale_items[item];
-            let item_costs = sale_items[item].costs;
+            let item_costs = item_object.costs;
             let item_costs_converted = [];
 
-            for (var cost_item in item_costs)
+            for (var c_item of Object.values(item_costs))
             {
-                let c_item = item_costs[cost_item];
-                let c_object = new Object();
-                c_object.name = BungieApi.Destiny2.getManifestItemName(c_item.itemHash);
-                c_object.icon = BungieApi.Destiny2.getManifestItemIcon(c_item.itemHash);
-                c_object.item_type = BungieApi.Destiny2.getManifestItemType(c_item.itemHash);
-                c_object.item_type_display_name = BungieApi.Destiny2.getManifestItemTypeDisplayName(c_item.itemHash);
-                c_object.quantity = c_item.quantity;
+                let c_object = {
+                    name: BungieApi.Destiny2.getManifestItemName(c_item.itemHash),
+                    icon: BungieApi.Destiny2.getManifestItemIcon(c_item.itemHash),
+                    item_type: BungieApi.Destiny2.getManifestItemType(c_item.itemHash),
+                    item_type_display_name: BungieApi.Destiny2.getManifestItemTypeDisplayName(c_item.itemHash),
+                    quantity: c_item.quantity,
+                };
                 item_costs_converted.push(c_object);
             }
 
