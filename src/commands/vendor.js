@@ -68,13 +68,19 @@ module.exports = {
         vendor_message.embed.image.url = vendor_data.large_icon;
         vendor_message.embed.thumbnail.url = vendor_data.thumbnail;
         vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
-        vendor_message.embed.footer.text = `Refresh Date: ${new Date(vendor_data.footer_text)}`;
+        vendor_message.embed.footer.text = `Reset: ${new Date(vendor_data.footer_text)}`;
 
         let vendor_sale_items = vendor.GetVendorSaleItems();
         for (let item in vendor_sale_items)
         {
             let vendor_object = vendor_sale_items[item];
-            let name = `Qty: ${vendor_object.item_quantity} ${vendor_object.item_name}`;
+            let quantity = vendor_object.item_quantity;
+            if (quantity === 1)
+            {
+                quantity = '';
+            }
+
+            let name = `${vendor_object.item_name} ${quantity}`;
             let cost = "";
             for (var cost_item in vendor_object.item_costs)
             {
@@ -83,13 +89,17 @@ module.exports = {
             }
             if (cost === "")
             {
-                cost = `unknown`;
+                cost = `No Cost`;
             }
-            vendor_message.embed.fields.push({
-                name: name, 
-                value: cost, 
-                inline: `true`
-            });
+
+            if (name !== " ")
+            {
+                vendor_message.embed.fields.push({
+                    name: name, 
+                    value: cost, 
+                    inline: `false`
+                });
+            }
         }
         message.channel.send(vendor_message);
 
