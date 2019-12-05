@@ -45,7 +45,7 @@ module.exports = {
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
         let character_keys = discord_destiny_profile.characters.split(",");
-        let character_id = 0; // TODO: Might be nice to get latest character at some point
+        let character_id = 0;
         let date_time = 0;
         for (let char_id of character_keys)
         {
