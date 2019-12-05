@@ -25,6 +25,7 @@ class Destiny2{
 			"DestinyActivityDefinition",
 			"DestinyActivityTypeDefinition",
 			"DestinyProgressionDefinition",
+			"DestinyVendorDefinition",
 		]
 	}
 
@@ -132,6 +133,11 @@ class Destiny2{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["itemTypeDisplayName"];
 	}
 
+	getManifestItemType(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["itemType"];
+	}
+
 	getManifestClassName(classHash)
 	{
 		return this.Manifest["en"]["DestinyClassDefinition"][String(classHash)]["displayProperties"]["name"];
@@ -185,6 +191,16 @@ class Destiny2{
 	getManifestProgressionSteps(hash)
 	{
 		return this.Manifest["en"]["DestinyProgressionDefinition"][String(hash)]["steps"];
+	}
+
+	getManifestVendorDisplayProperties(hash)
+	{
+		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"];
+	}
+
+	getManifestVendorName(hash)
+	{
+		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"]["name"];
 	}
 
 	findActivityMode(activity_string)
@@ -450,7 +466,7 @@ class Destiny2{
 	 * @returns { Promise }
 	 * @see {@link https://bungie-net.github.io/multi/operation_get_Destiny2-GetVendor.html#operation_get_Destiny2-GetVendor|Destiny2.GetVendor} for more information
 	 */
-	getVendor( Opts ){
+	getVendor( Opts, oAuth ){
 		let proms = [ Ml.enumLookup( Opts.mType, this.Enums.bungieMembershipType ) ];
 		// For each component, lookup
 		Opts.components.forEach( c => {
@@ -468,13 +484,24 @@ class Destiny2{
 			// Create CSV string
 			Opts.components = Opts.components.join( "," );
 
-			return 	Ml.renderEndpoint( this.Endpoints.getVendors, {
-				characterId           : Opts.characterId,
-				membershipType : Opts.mType,
-				membershipId   : Opts.membershipId,
-				vendorHash            : Opts.vendorHash
-			}, { components : Opts.components } ).then( endpoint => Request.get( this.Endpoints.rootPath + endpoint ) );
+			return 	Ml.renderEndpoint( this.Endpoints.getVendor, {
+				characterId: 	Opts.characterId,
+				membershipType: Opts.mType,
+				membershipId: 	Opts.membershipId,
+				vendorHash: 	Opts.vendorHash
+			}, { components : Opts.components } )
+			.then( endpoint => Request.get( this.Endpoints.rootPath + endpoint, oAuth ) );
 		});
+	}
+
+	/**
+	 * Get items available from vendors where the vendors have items for sale that are common for everyone.
+	 * @param { Array.<module:Destiny2/Enum~destinyComponentType> } components
+	 */
+	getPublicVendors( components ){
+		let endpoint_string = this.Endpoints.rootPath + this.Endpoints.getPublicVendors + "?components=" + components;
+		console.log(endpoint_string);
+		return Request.get( endpoint_string );
 	}
 
 	/**
