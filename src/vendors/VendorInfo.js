@@ -1,5 +1,6 @@
 import { BungieApi } from "bungieapi/BungieApi"
 import { OAuth } from "membership/oAuth"
+var StringSimilarity = require('string-similarity');
 let ASSERT = require("assert");
 
 // the maximum amount of time the vendor data 
@@ -66,6 +67,7 @@ export class Vendors
 
     FindVendorHash(vendor_name)
     {
+        let best_rating = 0.5;
         for (let vendor in this.vendors.vendors.data)
         {
             if (vendor === undefined)
@@ -74,7 +76,8 @@ export class Vendors
             }
 
             let name = BungieApi.Destiny2.getManifestVendorName(vendor).toUpperCase();
-            if (vendor_name === name)
+            let rating = StringSimilarity.compareTwoStrings(vendor_name, name);
+            if (rating >= best_rating)
             {
                 this.vendor_hash = vendor;
                 return vendor;
