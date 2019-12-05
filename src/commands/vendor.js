@@ -1,5 +1,6 @@
 import ColorCode from 'utility/Color.js';
 import { Vendors } from 'vendors/VendorInfo.js';
+import { Character } from "character/CharacterInfo.js"
 
 module.exports = {
     name: 'vendor',
@@ -44,7 +45,25 @@ module.exports = {
         let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
         let membership_type = discord_destiny_profile.membership_type;
         let character_keys = discord_destiny_profile.characters.split(",");
-        let character_id = character_keys[0]; // TODO: Might be nice to get latest character at some point
+        let character_id = 0; // TODO: Might be nice to get latest character at some point
+        let date_time = 0;
+        for (let char_id of character_keys)
+        {
+            let character = new Character(char_id, membership_type, destiny_membership_id);
+            let [valid, result] = await character.Request();
+
+            if (!character.Valid())
+            {
+                continue;
+            }
+
+            let date_last_played = character.LastPlayed();
+            if (date_last_played > date_time)
+            {
+                character_id = char_id;
+                date_time = date_last_played;
+            }
+        }
 
         let vendor = new Vendors(character_id, membership_type, destiny_membership_id);
         let [vendor_valid, vendor_result] = await vendor.Request();
