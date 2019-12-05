@@ -21,7 +21,9 @@ module.exports = {
 
         if (args.length < 1)
         {
-            console.log(`no vendor specified`);
+            vendor_message.embed.description = `Please specify a vendor`;
+            vendor_message.embed.color = ColorCode.RED;
+            message.channel.send(vendor_message);
             return;
         }
 
@@ -45,7 +47,7 @@ module.exports = {
         let character_id = character_keys[0]; // TODO: Might be nice to get latest character at some point
 
         let vendor = new Vendors(character_id, membership_type, destiny_membership_id);
-        let [vendor_valid, vendor_result] = await vendor.RequestVendors();
+        let [vendor_valid, vendor_result] = await vendor.Request();
         if (!vendor_valid)
         {
             console.log(`vendor_valid: ${vendor_sales_valid} .vendor_result: ${vendor_sales_result}`);
@@ -55,29 +57,38 @@ module.exports = {
         let vendor_hash = vendor.FindVendorHash(vendor_user_input);
         if (vendor_hash === 0)
         {
-            console.log(`unable to find vendor hash`);
+            vendor_message.embed.title = `Unable to Locate ${vendor_user_input}`;
+            vendor_message.embed.description = `Perhaps they are hiding, on vacation, or just on a time gated rotation`;
+            message.channel.send(vendor_message);
             return;
         }
-        let vendor_data = vendor.GetVendorInfo(vendor_hash);
+        let vendor_data = vendor.GetVendorInfo();
         vendor_message.embed.title = vendor_data.name;
         vendor_message.embed.description = vendor_data.subtitle;
         vendor_message.embed.image.url = vendor_data.large_icon;
         vendor_message.embed.thumbnail.url = vendor_data.thumbnail;
         vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
+        vendor_message.embed.footer.text = `Refresh Date: ${new Date(vendor_data.footer_text)}`;
 
-        let [vendor_sales_valid, vendor_sales_result] = await vendor.RequestSales(vendor_hash);
-        if (!vendor_sales_valid)
-        {
-            console.log(`vendor_sales_valid: ${vendor_sales_valid} .vendor_sales_result: ${vendor_sales_result}`);
-            return " " + vendor_sales_result;
-        }
         let vendor_sale_items = vendor.GetVendorSaleItems();
         for (let item in vendor_sale_items)
         {
             let vendor_object = vendor_sale_items[item];
+            let name = `Qty: ${vendor_object.item_quantity} ${vendor_object.item_name}`;
+            let cost = "";
+            for (var cost_item in vendor_object.item_costs)
+            {
+                let c_item = vendor_object.item_costs[cost_item];
+                cost += `Cost: ${c_item.quantity} ${c_item.name}\n`;
+            }
+            if (cost === "")
+            {
+                cost = `unknown`;
+            }
             vendor_message.embed.fields.push({
-                name: `Qty: ${vendor_object.item_quantity} ${vendor_object.item_name}`, 
-                value: `Cost: ${vendor_object.cost_item_quantity} ${vendor_object.cost_item_name}`, inline: `true`
+                name: name, 
+                value: cost, 
+                inline: `true`
             });
         }
         message.channel.send(vendor_message);
