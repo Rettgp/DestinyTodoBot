@@ -116,6 +116,8 @@ export class Vendors
                 let c_object = new Object();
                 c_object.name = BungieApi.Destiny2.getManifestItemName(c_item.itemHash);
                 c_object.icon = BungieApi.Destiny2.getManifestItemIcon(c_item.itemHash);
+                c_object.item_type = BungieApi.Destiny2.getManifestItemType(c_item.itemHash);
+                c_object.item_type_display_name = BungieApi.Destiny2.getManifestItemTypeDisplayName(c_item.itemHash);
                 c_object.quantity = c_item.quantity;
                 item_costs_converted.push(c_object);
             }
@@ -124,6 +126,8 @@ export class Vendors
                 vendor_item_index: item_object.vendorItemIndex,
                 item_name: BungieApi.Destiny2.getManifestItemName(item_object.itemHash),
                 item_icon: BungieApi.Destiny2.getManifestItemIcon(item_object.itemHash),
+                item_type: BungieApi.Destiny2.getManifestItemType(item_object.itemHash),
+                item_type_display_name: BungieApi.Destiny2.getManifestItemTypeDisplayName(item_object.itemHash),
                 item_quantity: item_object.quantity,
                 item_costs: item_costs_converted,
             };

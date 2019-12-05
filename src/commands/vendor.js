@@ -58,7 +58,7 @@ module.exports = {
         if (vendor_hash === 0)
         {
             vendor_message.embed.title = `Unable to Locate ${vendor_user_input}`;
-            vendor_message.embed.description = `Perhaps they are hiding, on vacation, or just on a time gated rotation`;
+            vendor_message.embed.description = `Perhaps ${vendor_user_input} is hiding, on vacation, or just on a time gated rotation`;
             message.channel.send(vendor_message);
             return;
         }
