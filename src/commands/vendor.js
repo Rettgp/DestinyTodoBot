@@ -128,8 +128,8 @@ module.exports = {
                 });
             }
         }
-        message.channel.send(vendor_message);
-        await emoji_handler.CleanupEmojis();
+        message.channel.send(vendor_message)
+            .then(msg => {emoji_handler.CleanupEmojis()});
         return;
     },
 };
