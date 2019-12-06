@@ -111,7 +111,7 @@ export class Vendors
             {
                 let c_object = {
                     name: BungieApi.Destiny2.getManifestItemName(c_item.itemHash),
-                    icon: BungieApi.Destiny2.getManifestItemIcon(c_item.itemHash),
+                    icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${BungieApi.Destiny2.getManifestItemIcon(c_item.itemHash)}`,
                     item_type: BungieApi.Destiny2.getManifestItemType(c_item.itemHash),
                     item_type_display_name: BungieApi.Destiny2.getManifestItemTypeDisplayName(c_item.itemHash),
                     quantity: c_item.quantity,
@@ -122,7 +122,7 @@ export class Vendors
             let sale_item = {
                 vendor_item_index: item_object.vendorItemIndex,
                 item_name: BungieApi.Destiny2.getManifestItemName(item_object.itemHash),
-                item_icon: BungieApi.Destiny2.getManifestItemIcon(item_object.itemHash),
+                item_icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${BungieApi.Destiny2.getManifestItemIcon(item_object.itemHash)}`,
                 item_type: BungieApi.Destiny2.getManifestItemType(item_object.itemHash),
                 item_type_display_name: BungieApi.Destiny2.getManifestItemTypeDisplayName(item_object.itemHash),
                 item_quantity: item_object.quantity,
@@ -131,5 +131,26 @@ export class Vendors
             items.push(sale_item);
         }
         return items;
+    }
+
+    GetItemTypeBlacklisted(item_type)
+    {
+        let blackListedItemTypes = {
+            none: BungieApi.Destiny2.Enums.destinyItemType.NONE,
+            bounty: BungieApi.Destiny2.Enums.destinyItemType.BOUNTY,
+            emblem: BungieApi.Destiny2.Enums.destinyItemType.EMBLEM,
+            quest: BungieApi.Destiny2.Enums.destinyItemType.QUEST,
+            quest_step: BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEP,
+            quest_step_complete: BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEPCOMPLETE,
+        };
+
+        for (var type of Object.values(blackListedItemTypes))
+        {
+            if (type === item_type)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
