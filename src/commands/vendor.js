@@ -129,7 +129,7 @@ module.exports = {
             }
         }
         message.channel.send(vendor_message);
-        setTimeout(() =>  {emoji_handler.CleanupEmojis()}, 200);
+        await emoji_handler.CleanupEmojis();
         return;
     },
 };
