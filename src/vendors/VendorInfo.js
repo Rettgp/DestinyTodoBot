@@ -74,6 +74,11 @@ export class Vendors
                 return 0;
             }
 
+            if (vendor_name === `XUR`)
+            {
+                vendor_name = `XÛR`;
+            }
+
             let name = BungieApi.Destiny2.getManifestVendorName(vendor).toUpperCase();
             let rating = StringSimilarity.compareTwoStrings(vendor_name, name);
             if (rating >= best_rating)
