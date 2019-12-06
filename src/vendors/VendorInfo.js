@@ -135,22 +135,15 @@ export class Vendors
 
     GetItemTypeBlacklisted(item_type)
     {
-        let blackListedItemTypes = {
-            none: BungieApi.Destiny2.Enums.destinyItemType.NONE,
-            bounty: BungieApi.Destiny2.Enums.destinyItemType.BOUNTY,
-            emblem: BungieApi.Destiny2.Enums.destinyItemType.EMBLEM,
-            quest: BungieApi.Destiny2.Enums.destinyItemType.QUEST,
-            quest_step: BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEP,
-            quest_step_complete: BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEPCOMPLETE,
-        };
+        let blacklisted_item_types = [
+            BungieApi.Destiny2.Enums.destinyItemType.NONE,
+            BungieApi.Destiny2.Enums.destinyItemType.BOUNTY,
+            BungieApi.Destiny2.Enums.destinyItemType.EMBLEM,
+            BungieApi.Destiny2.Enums.destinyItemType.QUEST,
+            BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEP,
+            BungieApi.Destiny2.Enums.destinyItemType.QUESTSTEPCOMPLETE,
+        ];
 
-        for (var type of Object.values(blackListedItemTypes))
-        {
-            if (type === item_type)
-            {
-                return true;
-            }
-        }
-        return false;
+        return blacklisted_item_types.includes(item_type);
     }
 }
