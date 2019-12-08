@@ -292,6 +292,40 @@ const awaUserSelection = {
 	APPROVED : 2
 };
 
+/**
+ * @readonly
+ * @enum { number } -
+ */
+const destinyItemType = {
+	NONE: 0,
+	CURRENCY: 1,
+	ARMOR: 2,
+	WEAPON: 3,
+	MESSAGE: 7,
+	ENGRAM: 8,
+	CONSUMABLE: 9,
+	EXCHANGEMATERIAL: 10,
+	MISSIONREWARD: 11,
+	QUESTSTEP: 12,
+	QUESTSTEPCOMPLETE: 13,
+	EMBLEM: 14,
+	QUEST: 15,
+	SUBCLASS: 16,
+	CLANBANNER: 17,
+	AURA: 18,
+	MOD: 19,
+	DUMMY: 20,
+	SHIP: 21,
+	VEHICLE: 22,
+	EMOTE: 23,
+	GHOST: 24,
+	PACKAGE: 25,
+	BOUNTY: 26,
+	WRAPPER: 27,
+	SEASONALARTIFACT: 28,
+	FINISHER: 29,
+};
+
 module.exports = {
 	bungieMembershipType     : map( bungieMembershipType ),
 	destinyComponentType     : map( destinyComponentType ),
@@ -301,5 +335,6 @@ module.exports = {
 	destinyStatsCategoryType : map( destinyStatsCategoryType ),
 	unitType                 : map( unitType ),
 	awaType                  : map( awaType ),
-	awaUserSelection         : map( awaUserSelection )
+	awaUserSelection         : map( awaUserSelection ),
+	destinyItemType			 : map( destinyItemType )
 }

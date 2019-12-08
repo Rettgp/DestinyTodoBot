@@ -1,6 +1,7 @@
 import ColorCode from 'utility/Color.js';
 import { Vendors } from 'vendors/VendorInfo.js';
-import { Character } from "character/CharacterInfo.js"
+import { Character } from "character/CharacterInfo.js";
+import { EmojiHandler } from "utility/EmojiHandler.js";
 
 module.exports = {
     name: 'vendor',
@@ -84,21 +85,34 @@ module.exports = {
         vendor_message.embed.thumbnail.url = vendor_data.thumbnail;
         vendor_message.embed.footer.icon_url = vendor_data.footer_icon;
         vendor_message.embed.footer.text = `Reset: ${new Date(vendor_data.footer_text)}`;
-
+        
+        let emoji_handler = new EmojiHandler(message.guild);
         let vendor_sale_items = vendor.GetVendorSaleItems(vendor_hash);
         for (let vendor_object of Object.values(vendor_sale_items))
         {
+            if (vendor.GetItemTypeBlacklisted(vendor_object.item_type))
+            {
+                //console.log(`${vendor_object.item_name} is blacklisted, skipping`);
+                continue;
+            }
+
             let quantity = vendor_object.item_quantity;
             if (quantity === 1)
             {
                 quantity = '';
             }
 
-            let name = `${vendor_object.item_name} ${quantity}`;
+            if (vendor_object.item_name.startsWith("Purchase "))
+            {
+                vendor_object.item_name = vendor_object.item_name.replace('Purchase ','');
+            }
+
+            let name = `${quantity} ${vendor_object.item_name}`;
             let cost = "";
             for (var c_item of Object.values(vendor_object.item_costs))
             {
-                cost += `Cost: ${c_item.quantity} ${c_item.name}\n`;
+                let new_emoji = await emoji_handler.CreateCustomEmoji(c_item.name, c_item.icon);
+                cost += `Cost: ${c_item.quantity} ${new_emoji}\n`;
             }
             if (cost === "")
             {
@@ -110,12 +124,12 @@ module.exports = {
                 vendor_message.embed.fields.push({
                     name: name, 
                     value: cost, 
-                    inline: `false`
+                    inline: `true`
                 });
             }
         }
-        message.channel.send(vendor_message);
-
+        message.channel.send(vendor_message)
+            .then(msg => {emoji_handler.CleanupEmojis()});
         return;
     },
 };
