@@ -32,7 +32,6 @@ export class EmojiHandler
 
     UpdateEmojiMap(new_emoji)
     {
-        console.log(`s_custom_emojis.size: ${s_custom_emojis.size}`);
         if (s_custom_emojis.size === 0)
         {
             let emoji_list = this.guild.emojis.map(e=>e);
@@ -58,7 +57,7 @@ export class EmojiHandler
         }
 
         let custom_emoji = s_custom_emojis.get(new_emoji.id);
-        s_custom_emojis.set(custom_emoji.id, {
+        s_custom_emojis.set(new_emoji.id, {
             value: custom_emoji.value,
             last_updated: Date.now()
         });
@@ -66,15 +65,32 @@ export class EmojiHandler
 
     async CleanupEmojis()
     {
-        if ( this.guild.emojis.size < 35 )
+        if ( this.guild.emojis.size < 30 )
         {
             return;
         }
 
-        // the idea here would be get all dates from the stored emoji map.
-        // Sort the dates ascending. 
-        // remove the oldest 10 from the map and the emoji collection
-        // await this.guild.deleteEmoji(emoji.id);
-        // this.s_custom_emojis.delete(emoji.id);
+        let custom_emoji_timestamps = [];
+        for (let [key, value] of s_custom_emojis)
+        {
+            custom_emoji_timestamps.push({id: key, time: value.last_updated});
+        }
+
+        custom_emoji_timestamps = custom_emoji_timestamps.sort(function(a, b){ 
+            return a.time - b.time; 
+        });
+
+        let emoji_count = 0;
+        let s_custom_emoji_count = s_custom_emojis.size;
+        for (let e of custom_emoji_timestamps)
+        {
+            if (emoji_count >= (s_custom_emoji_count / 2))
+            {
+                return;
+            }
+            await this.guild.deleteEmoji(e.id);
+            s_custom_emojis.delete(e.id);
+            emoji_count++;
+        }
     }
 }
