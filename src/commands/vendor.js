@@ -30,7 +30,7 @@ module.exports = {
         }
 
         let membership = new Membership(message,keyv);
-        let user_membership = await membership.GetAuthorMembership();
+        let destiny_membership = await membership.GetMembershipOfAuthor();
         if (!membership.Valid())
         {
             return;
@@ -38,10 +38,9 @@ module.exports = {
 
         let character_id = 0;
         let date_time = 0;
-        for (let char_id of user_membership.destiny_character_keys)
+        for (let char_id of destiny_membership.character_uids)
         {
-            let character = new Character(char_id, user_membership.destiny_membership_type, 
-                user_membership.destiny_membership_id);
+            let character = new Character(char_id, destiny_membership.type, destiny_membership.id);
             let [valid, result] = await character.Request();
 
             if (!character.Valid())
@@ -57,8 +56,7 @@ module.exports = {
             }
         }
 
-        let vendor = new Vendors(character_id, user_membership.destiny_membership_type, 
-            user_membership.destiny_membership_id);
+        let vendor = new Vendors(character_id, destiny_membership.type, destiny_membership.id);
         let [vendor_valid, vendor_result] = await vendor.Request();
         if (!vendor_valid)
         {

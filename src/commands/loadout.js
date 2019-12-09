@@ -115,7 +115,7 @@ module.exports = {
         }
 
         let membership = new Membership(message,keyv);
-        let user_membership = await membership.GetMentionedMembership();
+        let destiny_membership = await membership.GetMembershipOfMentionedUser();
         if (!membership.Valid())
         {
             return;
@@ -124,10 +124,9 @@ module.exports = {
         let latest_char = null
         let date_time = 0;
         let characters = []
-        for (let char_id of user_membership.destiny_character_keys)
+        for (let char_id of destiny_membership.character_uids)
         {
-            let character = new Character(char_id, user_membership.destiny_membership_type, 
-                user_membership.destiny_membership_id);
+            let character = new Character(char_id, destiny_membership.type, destiny_membership.id);
             let [valid, result] = await character.Request();
 
             if (!character.Valid())

@@ -9,7 +9,7 @@ export class Membership
         this.valid = false;
     }
 
-    async GetAuthorMembership()
+    async GetMembershipOfAuthor()
     {
         const info_message = {
             embed: {
@@ -31,14 +31,14 @@ export class Membership
         let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
         let membership = {
             username: user_key.username,
-            destiny_membership_id: discord_destiny_profile.destiny_membership_id,
-            destiny_membership_type: discord_destiny_profile.membership_type,
-            destiny_character_keys: discord_destiny_profile.characters.split(","),
+            id: discord_destiny_profile.destiny_membership_id,
+            type: discord_destiny_profile.membership_type,
+            character_uids: discord_destiny_profile.characters.split(","),
         }
         return membership;
     }   
 
-    async GetMentionedMembership()
+    async GetMembershipOfMentionedUser()
     {
         const info_message = {
             embed: {
@@ -64,9 +64,9 @@ export class Membership
         let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
         let membership = {
             username: user_key.username,
-            destiny_membership_id: discord_destiny_profile.destiny_membership_id,
-            destiny_membership_type: discord_destiny_profile.membership_type,
-            destiny_character_keys: discord_destiny_profile.characters.split(","),
+            id: discord_destiny_profile.destiny_membership_id,
+            type: discord_destiny_profile.membership_type,
+            character_uids: discord_destiny_profile.characters.split(","),
         }
         return membership;
     }

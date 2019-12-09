@@ -57,14 +57,14 @@ module.exports = {
         };
 
         let membership = new Membership(message,keyv);
-        let user_membership = await membership.GetMentionedMembership();
+        let destiny_membership = await membership.GetMembershipOfMentionedUser();
         if (!membership.Valid())
         {
             return;
         }
-        let character_id = user_membership.destiny_character_keys[0];
+        let character_id = destiny_membership.character_uids[0];
 
-        message.channel.send(`**Rank Stats: ${user_membership.username}**`);
+        message.channel.send(`**Rank Stats: ${destiny_membership.username}**`);
 
         let progression_hash_values = {
             glory_simple: 2679551909, // simple rank
@@ -75,8 +75,7 @@ module.exports = {
         };
 
         // Get Character Progression
-        let character = new Character(character_id, user_membership.destiny_membership_type, 
-            user_membership.destiny_membership_id);
+        let character = new Character(character_id, destiny_membership.type, destiny_membership.id);
 
         let [valid, char_result] = await character.Request();
         if (!valid)
@@ -87,8 +86,8 @@ module.exports = {
         // Get Stats
         let progression_glory = character.CharacterProgressions(progression_hash_values.glory_detailed);
         let stat_options = {
-            membershipId: user_membership.destiny_membership_id,
-            mType: user_membership.destiny_membership_type,
+            membershipId: destiny_membership.id,
+            mType: destiny_membership.type,
             characterId: 0,
             modes: [BungieApi.Destiny2.Enums.destinyActivityModeType.PVPCOMPETITIVE,
                 BungieApi.Destiny2.Enums.destinyActivityModeType.PVPQUICKPLAY,
