@@ -3,6 +3,7 @@ import TodoList from "todo/TodoList";
 import { ReactionEmoji } from 'discord.js';
 import { BungieApi } from "bungieapi/BungieApi"
 import ActivityHistory from "character/ActivityHistory"
+import { Membership } from "membership/MembershipManager.js";
 
 export default class TodoQuery
 {
@@ -16,35 +17,32 @@ export default class TodoQuery
         this.keyv = keyv;
     }
 
-    async GetFlavorTextForUser(server_id, user_id, activity_string, activity_type)
+    async GetFlavorTextForUser(user, activity_string, activity_type)
     {
-        let discord_destiny_profile_json = await this.keyv.get(server_id + "-" + user_id);
-        if (discord_destiny_profile_json === undefined)
+        let membership = new Membership(this.message, this.keyv);
+        let destiny_membership = await membership.GetMembershipOfCustom(user);
+        if (!membership.Valid())
         {
-            return "No characters found";
+            return destiny_membership;
         }
 
-        let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
-        let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
-        let membership_type = discord_destiny_profile.membership_type;
-        let characters = discord_destiny_profile.characters.split(",");
         if (activity_type.length === 0 || activity_type === 0)
         {
             return  "Activity not found";
         }
 
         let text = "";
-        for (let character of characters)
+        for (let character of destiny_membership.character_uids)
         {
             text += await this.activity_history.History(
-                destiny_membership_id, 
-                membership_type, character, activity_string, activity_type) + " ";
+                destiny_membership.id, 
+                destiny_membership.type, character, activity_string, activity_type) + " ";
         }
 
         return text;
     }
 
-    async GetList(discord_guild)
+    async GetList()
     {
         for (let [key, value] of this.todo_list.GetTodos())
         {
@@ -78,9 +76,8 @@ export default class TodoQuery
             }
             for (let participant of value.Participants())
             {
-                let discord_guildmember = discord_guild.members.find(val => {return val.user.username === participant});
-                let discord_user_id = discord_guildmember.user.id;
-                let flavor_text = await this.GetFlavorTextForUser(discord_guild.id, discord_user_id, key, value.Type());
+                let discord_guildmember = this.message.guild.members.find(val => {return val.user.username === participant});
+                let flavor_text = await this.GetFlavorTextForUser(discord_guildmember.user, key, value.Type());
                 todo_message.embed.fields.push({ name: `${participant}`, value: `${flavor_text}` });
             }
             this.message.channel.send(todo_message).then( async message => {

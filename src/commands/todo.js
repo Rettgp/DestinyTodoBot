@@ -48,7 +48,7 @@ module.exports = {
             todo_list.Deserialize(todo_list_json);
 
             let todo_query = new TodoQuery(message, todo_list, keyv);
-            todo_query.GetList(message.guild);
+            todo_query.GetList();
 
             let todo_timeout = new TodoTimeout(message, keyv, server_id, todo_name);
             todo_timeout.SetToDoTimeout(message.guild);
