@@ -1,4 +1,5 @@
 import { Character } from "character/CharacterInfo.js"
+import { Membership } from "membership/MembershipManager.js";
 import ColorCode from 'utility/Color';
 import fs from 'fs';
 const path = require('path');
@@ -103,7 +104,6 @@ module.exports = {
     description: 'Displays mentioned users loadout.',
     async execute(message, args, keyv)
     {
-        let server_id = message.guild.id;
         let info_message = {
             embed: {
                 description: "",
@@ -114,32 +114,20 @@ module.exports = {
             fs.mkdirSync(tmp_asset_dir);
         }
 
-        let user_key = message.author;
-        
-        if (message.mentions.members.size === 1)
+        let membership = new Membership(message,keyv);
+        let user_membership = await membership.GetMentionedMembership();
+        if (!membership.Valid())
         {
-            user_key = message.mentions.members.first().user;
-        }
-
-        let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
-        if (discord_destiny_profile_json === undefined)
-        {
-            info_message.embed.description = `${user_key.username} has not authorized me yet :(`
-            info_message.embed.color = ColorCode.RED;
-            message.channel.send(info_message);
             return;
         }
 
-        let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
-        let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
-        let membership_type = discord_destiny_profile.membership_type;
-        let character_ids = discord_destiny_profile.characters.split(",");
         let latest_char = null
         let date_time = 0;
         let characters = []
-        for (let char_id of character_ids)
+        for (let char_id of user_membership.destiny_character_keys)
         {
-            let character = new Character(char_id, membership_type, destiny_membership_id);
+            let character = new Character(char_id, user_membership.destiny_membership_type, 
+                user_membership.destiny_membership_id);
             let [valid, result] = await character.Request();
 
             if (!character.Valid())
