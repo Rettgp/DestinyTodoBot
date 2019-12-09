@@ -1,14 +1,14 @@
 import ColorCode from 'utility/Color.js';
 import { Vendors } from 'vendors/VendorInfo.js';
-import { Character } from "character/CharacterInfo.js";
 import { EmojiHandler } from "utility/EmojiHandler.js";
+import { Character } from "character/CharacterInfo.js"
+import { Membership } from "membership/MembershipManager.js";
 
 module.exports = {
     name: 'vendor',
     description: 'Gets the current vendor items',
     async execute(message, args, keyv)
     {
-        let server_id = message.guild.id;
         const vendor_message = {
             embed: {
                 title: "",
@@ -29,24 +29,18 @@ module.exports = {
             return;
         }
 
-        let user_key = message.author;
-        let discord_destiny_profile_json = await keyv.get(server_id + "-" + user_key.id);
-        if (discord_destiny_profile_json === undefined)
+        let membership = new Membership(message,keyv);
+        let destiny_membership = await membership.GetMembershipOfAuthor();
+        if (!membership.Valid())
         {
-            vendor_message.embed.description = `${user_key.username} has not authorized me yet :(`
-            vendor_message.embed.color = ColorCode.RED;
-            message.channel.send(vendor_message);
             return;
         }
-        let discord_destiny_profile = JSON.parse(discord_destiny_profile_json);
-        let destiny_membership_id = discord_destiny_profile.destiny_membership_id;
-        let membership_type = discord_destiny_profile.membership_type;
-        let character_keys = discord_destiny_profile.characters.split(",");
+
         let character_id = 0;
         let date_time = 0;
-        for (let char_id of character_keys)
+        for (let char_id of destiny_membership.character_uids)
         {
-            let character = new Character(char_id, membership_type, destiny_membership_id);
+            let character = new Character(char_id, destiny_membership.type, destiny_membership.id);
             let [valid, result] = await character.Request();
 
             if (!character.Valid())
@@ -62,7 +56,7 @@ module.exports = {
             }
         }
 
-        let vendor = new Vendors(character_id, membership_type, destiny_membership_id);
+        let vendor = new Vendors(character_id, destiny_membership.type, destiny_membership.id);
         let [vendor_valid, vendor_result] = await vendor.Request();
         if (!vendor_valid)
         {
