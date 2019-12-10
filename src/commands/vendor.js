@@ -60,7 +60,7 @@ module.exports = {
         let [vendor_valid, vendor_result] = await vendor.Request();
         if (!vendor_valid)
         {
-            console.log(`vendor_valid: ${vendor_sales_valid} .vendor_result: ${vendor_sales_result}`);
+            console.log(`vendor_valid: ${vendor_valid} .vendor_result: ${vendor_result}`);
             return " " + vendor_result;
         }
         let vendor_user_input = args.join(" ").toUpperCase();
