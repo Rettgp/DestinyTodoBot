@@ -10,6 +10,7 @@ export class EmojiHandler
     async CreateCustomEmoji(name,emoji_icon)
     {
         let emoji_name = name.split(' ').join('_').toLowerCase();
+        emoji_name = emoji_name.split('-').join('_');
         let new_emoji = await this.CheckAndAdd(`custom_${emoji_name}`, emoji_icon);
         return `<:${new_emoji.name}:${new_emoji.id}>`;
     }

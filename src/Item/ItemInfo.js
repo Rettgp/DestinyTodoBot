@@ -89,10 +89,24 @@ export class Item
                 let quest_step_list = best_object.setData.itemList;
                 for (let step of quest_step_list)
                 {
-                    let item_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(step.itemHash)
+                    let item_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(step.itemHash);
                     quest_step_list_converted.push({name: item_properties.name, description: item_properties.description});
                 }
             }
+
+            let socket_name_list_converted = [];
+            if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.WEAPON)
+                {
+                    let socket_name_list = best_object.sockets.socketEntries;
+                    for (let socket of socket_name_list)
+                    {
+                        if (socket.singleInitialItemHash > 0)
+                        {
+                            let socket_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(socket.singleInitialItemHash);
+                            socket_name_list_converted.push({name: socket_properties.name, icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${socket_properties.icon}`});
+                        }
+                    }
+                }
 
             let item_object = {
                 name: best_object.displayProperties.name,
@@ -102,6 +116,7 @@ export class Item
                 item_type_and_tier_display_name: best_object.itemTypeAndTierDisplayName,
                 stats: investment_stats_converted,
                 steps: quest_step_list_converted,
+                socket_names: socket_name_list_converted,
             };
 
             if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.EMBLEM)

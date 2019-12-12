@@ -1,5 +1,6 @@
 import ColorCode from 'utility/Color.js';
 import { Item } from 'Item/ItemInfo.js';
+import { EmojiHandler } from "utility/EmojiHandler.js";
 
 module.exports = {
     name: 'item',
@@ -58,7 +59,7 @@ module.exports = {
         }
         if (stats !== "")
         {
-            item_message.embed.fields.push({name: `Stats`, value: stats});
+            item_message.embed.fields.push({name: `Stats`, value: stats, inline: 'true'});
         }
         
         if (weapon.steps !== [])
@@ -68,7 +69,23 @@ module.exports = {
                 item_message.embed.fields.push({name: `Quest Step: ${step.name}`, value: step.description});
             }
         }
+
+        let emoji_handler = new EmojiHandler(message.guild);
+        if (weapon.socket_names !== [])
+        {
+            let socket_value = "";
+            for (let socket of weapon.socket_names)
+            {
+                let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
+                socket_value += `${new_emoji} ${socket.name}\n`;
+            }
+            if (socket_value !== "")
+            {
+                item_message.embed.fields.push({name: `Sockets`, value: socket_value, inline: 'true'});
+            }
+        }
         
-        message.channel.send(item_message);
+        message.channel.send(item_message)
+            .then(msg => {emoji_handler.CleanupEmojis()});
     }
 }
