@@ -1,6 +1,5 @@
 import ColorCode from 'utility/Color.js';
 import { Item } from 'Item/ItemInfo.js';
-import { Membership } from "membership/MembershipManager.js";
 
 module.exports = {
     name: 'item',
@@ -37,7 +36,7 @@ module.exports = {
 
         let item_info = new Item();
         let item_type = item_info.FindClosestItemType(item_user_type);
-        
+
         let weapon = item_info.FindItemObject(item_user_input, item_type);
         if (weapon === null)
         {
@@ -47,7 +46,7 @@ module.exports = {
             return;
         }
 
-        item_message.embed.title = weapon.name;
+        item_message.embed.title = `${weapon.name} - ${weapon.item_type_and_tier_display_name}`;
         item_message.embed.description = weapon.description;
         item_message.embed.thumbnail.url = weapon.thumbnail;
         item_message.embed.image.url = weapon.screenshot;
@@ -57,13 +56,19 @@ module.exports = {
         {
             stats += `${stat.name}: ${stat.value}\n`;
         }
-
         if (stats !== "")
         {
             item_message.embed.fields.push({name: `Stats`, value: stats});
         }
         
-
+        if (weapon.steps !== [])
+        {
+            for (let step of weapon.steps)
+            {
+                item_message.embed.fields.push({name: `Quest Step: ${step.name}`, value: step.description});
+            }
+        }
+        
         message.channel.send(item_message);
     }
 }

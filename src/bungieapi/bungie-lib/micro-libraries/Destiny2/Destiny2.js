@@ -139,6 +139,11 @@ class Destiny2{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["itemType"];
 	}
 
+	getManifestItemDisplayProperties(itemHash)
+	{
+		return this.Manifest["en"]["DestinyInventoryItemDefinition"][String(itemHash)]["displayProperties"];
+	}
+
 	getManifestItemDefinition()
 	{
 		return this.Manifest["en"]["DestinyInventoryItemDefinition"];

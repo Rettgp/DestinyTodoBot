@@ -84,6 +84,17 @@ export class Item
                 investment_stats_converted.push({hash: stat.statTypeHash, name: stat_type_name, icon: stat_type_icon, value: stat.value})
             }
 
+            let quest_step_list_converted = [];
+            if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.QUEST)
+            {
+                let quest_step_list = best_object.setData.itemList;
+                for (let step of quest_step_list)
+                {
+                    let item_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(step.itemHash)
+                    quest_step_list_converted.push({name: item_properties.name, description: item_properties.description});
+                }
+            }
+
             let item_object = {
                 name: best_object.displayProperties.name,
                 description: best_object.displayProperties.description,
@@ -91,6 +102,7 @@ export class Item
                 screenshot: `${BungieApi.Destiny2.Endpoints.rootrootPath}${best_object.screenshot}`,
                 item_type_and_tier_display_name: best_object.itemTypeAndTierDisplayName,
                 stats: investment_stats_converted,
+                steps: quest_step_list_converted,
             };
             return item_object;
         }
