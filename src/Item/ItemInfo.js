@@ -94,19 +94,65 @@ export class Item
                 }
             }
 
-            let socket_name_list_converted = [];
+            let sorted_plug_objects = [];
             if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.WEAPON)
+            {
+                let plug_object_list = [];
+                let entries = best_object.sockets.socketEntries;
+                let categories = best_object.sockets.socketCategories;
+                for (let e of entries)
                 {
-                    let socket_name_list = best_object.sockets.socketEntries;
-                    for (let socket of socket_name_list)
+                    if (e.singleInitialItemHash > 0)
                     {
-                        if (socket.singleInitialItemHash > 0)
+                        let category_hash = BungieApi.Destiny2.getManifestSocketCategoryHash(e.socketTypeHash);
+                        let category_name = "";
+                        if (category_hash !== undefined)
                         {
-                            let socket_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(socket.singleInitialItemHash);
-                            socket_name_list_converted.push({name: socket_properties.name, icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${socket_properties.icon}`});
+                            category_name = BungieApi.Destiny2.getManifestDestinySocketCategoryDisplayProperties(category_hash).name;
+                        }
+                        let socket_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(e.singleInitialItemHash);
+                        plug_object_list.push({category: category_name, name: socket_properties.name, 
+                                icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${socket_properties.icon}`});
+
+                        let plug_set_items = {};
+                        if (e.randomizedPlugSetHash !== undefined)
+                        {
+                            plug_set_items = BungieApi.Destiny2.getManifestReusablePlugItems(e.randomizedPlugSetHash);
+                        }
+
+                        if (plug_set_items.length > 0)
+                        {
+                            for (let plug of plug_set_items)
+                            {
+                                let p_item = BungieApi.Destiny2.getManifestItemDisplayProperties(plug.plugItemHash);
+                                if (!plug_object_list.some(p_name => (p_name.name === p_item.name)))
+                                {
+                                    plug_object_list.push({category: category_name, name: p_item.name, 
+                                        icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${p_item.icon}`});
+                                }
+                            }
+                        }
+                    }        
+                }
+                for (let category of categories)
+                {
+                    let category_name = BungieApi.Destiny2.getManifestDestinySocketCategoryDisplayProperties(category.socketCategoryHash).name;
+                    let p_objects = [];
+                    for (let plug of plug_object_list)
+                    {
+                        if (category_name === plug.category)
+                        {
+                            p_objects.push({plug});
+                        }
+                        if (p_objects.length >= 10)
+                        {
+                            sorted_plug_objects.push(category.socketCategoryHash, p_objects);
+                            p_objects = [];
                         }
                     }
+                    sorted_plug_objects.push(category.socketCategoryHash, p_objects);
                 }
+            }
 
             let item_object = {
                 name: best_object.displayProperties.name,
@@ -116,7 +162,7 @@ export class Item
                 item_type_and_tier_display_name: best_object.itemTypeAndTierDisplayName,
                 stats: investment_stats_converted,
                 steps: quest_step_list_converted,
-                socket_names: socket_name_list_converted,
+                socket_plug_names: sorted_plug_objects,
             };
 
             if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.EMBLEM)

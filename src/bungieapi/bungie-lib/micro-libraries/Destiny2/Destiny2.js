@@ -27,6 +27,9 @@ class Destiny2{
 			"DestinyProgressionDefinition",
 			"DestinyVendorDefinition",
 			"DestinyStatDefinition",
+			"DestinyPlugSetDefinition",
+			"DestinySocketTypeDefinition",
+			"DestinySocketCategoryDefinition",
 		]
 	}
 
@@ -217,6 +220,21 @@ class Destiny2{
 	getManifestStatTypeDisplayProperties(hash)
 	{
 		return this.Manifest["en"]["DestinyStatDefinition"][String(hash)]["displayProperties"];
+	}
+
+	getManifestReusablePlugItems(hash)
+	{
+		return this.Manifest["en"]["DestinyPlugSetDefinition"][String(hash)]["reusablePlugItems"];
+	}
+
+	getManifestSocketCategoryHash(hash)
+	{
+		return this.Manifest["en"]["DestinySocketTypeDefinition"][String(hash)]["socketCategoryHash"];
+	}
+
+	getManifestDestinySocketCategoryDisplayProperties(hash)
+	{
+		return this.Manifest["en"]["DestinySocketCategoryDefinition"][String(hash)]["displayProperties"];
 	}
 
 	findActivityMode(activity_string)

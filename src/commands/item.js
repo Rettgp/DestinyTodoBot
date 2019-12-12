@@ -74,17 +74,23 @@ module.exports = {
         }
 
         let emoji_handler = new EmojiHandler(message.guild);
-        if (Array.isArray(item_info.socket_names) && item_info.socket_names.length > 0)
+        if (Array.isArray(item_info.socket_plug_names) && item_info.socket_plug_names.length > 0)
         {
-            let socket_value = "";
-            for (let socket of item_info.socket_names)
+            for (let sorted_plug of Object.keys(item_info.socket_plug_names))
             {
-                let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
-                socket_value += `${new_emoji} ${socket.name}\n`;
-            }
-            if (socket_value !== "")
-            {
-                item_message.embed.fields.push({name: `Sockets`, value: socket_value, inline: 'true'});
+                console.log(sorted_plug);
+                let socket_value = "";
+                for (let socket of sorted_plug.plug)
+                {
+                    console.log(socket.name, socket.icon);
+                    let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
+                    socket_value += `${new_emoji} ${socket.name}\n`;
+                }
+                if (socket_value !== "")
+                {
+                    console.log(socket_value);
+                    item_message.embed.fields.push({name: `${sorted_plug.category}`, value: socket_value, inline: 'true'});
+                }
             }
         }
         
