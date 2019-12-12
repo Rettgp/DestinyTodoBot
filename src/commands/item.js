@@ -21,7 +21,7 @@ module.exports = {
 
         if (args.length < 1)
         {
-            item_message.embed.description = `Please specify a weapon`;
+            item_message.embed.description = `Please specify an item to query`;
             item_message.embed.color = ColorCode.RED;
             message.channel.send(item_message);
             return;
@@ -35,11 +35,11 @@ module.exports = {
             item_user_input = item_user_input.replace(/ *\([^)]*\) */g, ""); 
         }        
 
-        let item_info = new Item();
-        let item_type = item_info.FindClosestItemType(item_user_type);
+        let item_class = new Item();
+        let item_type = item_class.FindClosestItemType(item_user_type);
 
-        let weapon = item_info.FindItemObject(item_user_input, item_type);
-        if (weapon === null)
+        let item_info = item_class.FindItemObject(item_user_input, item_type);
+        if (item_info === null)
         {
             item_message.embed.description = `Unable to find ${item_user_input}`;
             item_message.embed.color = ColorCode.RED;
@@ -47,34 +47,37 @@ module.exports = {
             return;
         }
 
-        item_message.embed.title = `${weapon.name} - ${weapon.item_type_and_tier_display_name}`;
-        item_message.embed.description = weapon.description;
-        item_message.embed.thumbnail.url = weapon.thumbnail;
-        item_message.embed.image.url = weapon.screenshot;
+        item_message.embed.title = `${item_info.name} - ${item_info.item_type_and_tier_display_name}`;
+        item_message.embed.description = item_info.description;
+        item_message.embed.thumbnail.url = item_info.thumbnail;
+        item_message.embed.image.url = item_info.screenshot;
 
-        let stats = "";
-        for (let stat of weapon.stats)
+        if (Array.isArray(item_info.stats) && item_info.stats.length > 0)
         {
-            stats += `${stat.name}: ${stat.value}\n`;
+            let stats = "";
+            for (let stat of item_info.stats)
+            {
+                stats += `${stat.name}: ${stat.value}\n`;
+            }
+            if (stats !== "")
+            {
+                item_message.embed.fields.push({name: `Stats`, value: stats, inline: 'true'});
+            }
         }
-        if (stats !== "")
+
+        if (Array.isArray(item_info.steps) && item_info.steps.length > 0)
         {
-            item_message.embed.fields.push({name: `Stats`, value: stats, inline: 'true'});
-        }
-        
-        if (weapon.steps !== [])
-        {
-            for (let step of weapon.steps)
+            for (let step of item_info.steps)
             {
                 item_message.embed.fields.push({name: `Quest Step: ${step.name}`, value: step.description});
             }
         }
 
         let emoji_handler = new EmojiHandler(message.guild);
-        if (weapon.socket_names !== [])
+        if (Array.isArray(item_info.socket_names) && item_info.socket_names.length > 0)
         {
             let socket_value = "";
-            for (let socket of weapon.socket_names)
+            for (let socket of item_info.socket_names)
             {
                 let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
                 socket_value += `${new_emoji} ${socket.name}\n`;
