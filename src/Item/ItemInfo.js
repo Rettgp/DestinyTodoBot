@@ -3,6 +3,33 @@ var StringSimilarity = require('string-similarity');
 
 export class Item
 {
+    FindClosestItemType(item_type)
+    {
+        let best_rating = 0.5;
+        let best_type = null;
+
+        for (let type of Object.keys(BungieApi.Destiny2.Enums.destinyItemType))
+        {
+            
+            let rating = StringSimilarity.compareTwoStrings(item_type, type);
+            if (rating > best_rating)
+            {
+                console.log(`type rating: ${rating} .type best_rating: ${best_rating}`);
+                best_rating = rating;
+                best_type = BungieApi.Destiny2.Enums.destinyItemType[type];
+                if (best_rating === 1)
+                {
+                    break;
+                }
+            }        
+        }
+        if (best_type !== null)
+        {
+            return best_type;
+        }
+        return null;
+    }
+
     FindItemObject(item_name, item_type)
     {
         let best_rating = 0.5;
@@ -15,30 +42,56 @@ export class Item
                 return null;
             }
     
-            let type = BungieApi.Destiny2.getManifestItemType(item);
-            if (type !== item_type)
+            if (item_type !== null)
             {
-                continue;
+                let type = BungieApi.Destiny2.getManifestItemType(item);
+                if (type !== item_type)
+                {
+                    continue;
+                }
             }
-    
+
             let name = BungieApi.Destiny2.getManifestItemName(item).toUpperCase();
             let rating = StringSimilarity.compareTwoStrings(item_name, name);
             if (rating > best_rating)
             {
-                console.log(`rating: ${rating} .best_rating: ${best_rating}`);
                 best_rating = rating;
-                console.log(item_definition[item]);
                 best_object = item_definition[item];
+                if (best_rating === 1)
+                {
+                    break;
+                }
             }
         }
         if (best_object !== null)
         {
+            let investment_stats = best_object.investmentStats;
+            let investment_stats_converted = [];
+            for (let stat of investment_stats)
+            {
+                let stat_properties = BungieApi.Destiny2.getManifestStatTypeDisplayProperties(stat.statTypeHash);
+                let stat_type_name = stat_properties.name;
+                let stat_type_icon = `${BungieApi.Destiny2.Endpoints.rootrootPath}${stat_properties.icon}`;
+                if (stat_properties.icon === undefined)
+                {
+                    stat_type_icon = undefined;
+                }
+                
+                if (stat_type_name === '')
+                {
+                    continue;
+                }
+                investment_stats_converted.push({hash: stat.statTypeHash, name: stat_type_name, icon: stat_type_icon, value: stat.value})
+            }
+
             let item_object = {
                 name: best_object.displayProperties.name,
                 description: best_object.displayProperties.description,
-                icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${best_object.displayProperties.icon}`,
+                thumbnail: `${BungieApi.Destiny2.Endpoints.rootrootPath}${best_object.displayProperties.icon}`,
+                screenshot: `${BungieApi.Destiny2.Endpoints.rootrootPath}${best_object.screenshot}`,
+                item_type_and_tier_display_name: best_object.itemTypeAndTierDisplayName,
+                stats: investment_stats_converted,
             };
-            console.log(item_object);
             return item_object;
         }
     

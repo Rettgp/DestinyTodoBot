@@ -26,6 +26,7 @@ class Destiny2{
 			"DestinyActivityTypeDefinition",
 			"DestinyProgressionDefinition",
 			"DestinyVendorDefinition",
+			"DestinyStatDefinition",
 		]
 	}
 
@@ -206,6 +207,11 @@ class Destiny2{
 	getManifestVendorName(hash)
 	{
 		return this.Manifest["en"]["DestinyVendorDefinition"][String(hash)]["displayProperties"]["name"];
+	}
+
+	getManifestStatTypeDisplayProperties(hash)
+	{
+		return this.Manifest["en"]["DestinyStatDefinition"][String(hash)]["displayProperties"];
 	}
 
 	findActivityMode(activity_string)
