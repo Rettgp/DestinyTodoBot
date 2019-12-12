@@ -52,7 +52,7 @@ module.exports = {
         item_message.embed.thumbnail.url = item_info.thumbnail;
         item_message.embed.image.url = item_info.screenshot;
 
-        if (Array.isArray(item_info.stats) && item_info.stats.length > 0)
+        if (item_info.stats !== undefined)
         {
             let stats = "";
             for (let stat of item_info.stats)
@@ -65,7 +65,7 @@ module.exports = {
             }
         }
 
-        if (Array.isArray(item_info.steps) && item_info.steps.length > 0)
+        if (item_info.steps !== undefined)
         {
             for (let step of item_info.steps)
             {
@@ -74,9 +74,9 @@ module.exports = {
         }
 
         let emoji_handler = new EmojiHandler(message.guild);
-        if (Array.isArray(item_info.socket_plug_names) && item_info.socket_plug_names.length > 0)
+        if (item_info.socket_plugs !== undefined)
         {
-            for (let sorted_plug of Object.keys(item_info.socket_plug_names))
+            for (let sorted_plug of Object.keys(item_info.socket_plugs))
             {
                 console.log(sorted_plug);
                 let socket_value = "";
