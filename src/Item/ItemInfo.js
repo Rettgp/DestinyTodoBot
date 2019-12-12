@@ -14,7 +14,6 @@ export class Item
             let rating = StringSimilarity.compareTwoStrings(item_type, type);
             if (rating > best_rating)
             {
-                console.log(`type rating: ${rating} .type best_rating: ${best_rating}`);
                 best_rating = rating;
                 best_type = BungieApi.Destiny2.Enums.destinyItemType[type];
                 if (best_rating === 1)
@@ -104,6 +103,12 @@ export class Item
                 stats: investment_stats_converted,
                 steps: quest_step_list_converted,
             };
+
+            if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.EMBLEM)
+            {
+                item_object.thumbnail = null;
+                item_object.screenshot = `${BungieApi.Destiny2.Endpoints.rootrootPath}${best_object.secondaryIcon}`;
+            }
             return item_object;
         }
     
