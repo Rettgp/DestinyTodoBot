@@ -146,66 +146,114 @@ export class Item
         {
             return undefined;
         }
-        return undefined;
-
-        let sorted_plug_objects = [];
-        if (best_object.itemType === BungieApi.Destiny2.Enums.destinyItemType.WEAPON)
+        let socket_and_plug_entry_list = [];
+        for (let entry of best_object.sockets.socketEntries)
         {
-            let plug_object_list = [];
-            let entries = best_object.sockets.socketEntries;
-            let categories = best_object.sockets.socketCategories;
-            for (let e of entries)
+            socket_and_plug_entry_list.push({
+                socketTypeHash: entry.socketTypeHash,
+                singleInitialItemHash: entry.singleInitialItemHash,
+                reusablePlugItems: entry.reusablePlugItems,
+                reusablePlugSetHash: this.getReusablePlugSet(entry.reusablePlugSetHash),
+                randomizedPlugSetHash: this.getRandomizedPlugSet(entry.randomizedPlugSetHash),
+            });
+        }
+
+        let socket_category_hash_list = [];
+        for (let hash of best_object.sockets.socketCategories)
+        {
+            socket_category_hash_list.push(hash.socketCategoryHash);
+        }
+
+        let socket_and_plugs = [];
+        for (let category of socket_category_hash_list)
+        {
+            let socket_and_plug_hash_values = [];
+            for (let socket_and_plug_entry of socket_and_plug_entry_list)
             {
-                if (e.singleInitialItemHash > 0)
+                if (socket_and_plug_entry.socketTypeHash === 0)
                 {
-                    let category_hash = BungieApi.Destiny2.getManifestSocketCategoryHash(e.socketTypeHash);
-                    let category_name = "";
-                    if (category_hash !== undefined)
-                    {
-                        category_name = BungieApi.Destiny2.getManifestDestinySocketCategoryDisplayProperties(category_hash).name;
-                    }
-                    let socket_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(e.singleInitialItemHash);
-                    plug_object_list.push({category: category_name, name: socket_properties.name, 
-                            icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${socket_properties.icon}`});
+                    continue;
+                }
+                let category_hash = BungieApi.Destiny2.getManifestSocketCategoryHash(socket_and_plug_entry.socketTypeHash);
+                if (category !== category_hash)
+                {
+                    continue;
+                }
 
-                    let plug_set_items = {};
-                    if (e.randomizedPlugSetHash !== undefined)
+                socket_and_plug_hash_values.push(socket_and_plug_entry.singleInitialItemHash);
+                if (socket_and_plug_entry.reusablePlugSetHash !== undefined)
+                {
+                    for (let reusable of socket_and_plug_entry.reusablePlugSetHash)
                     {
-                        plug_set_items = BungieApi.Destiny2.getManifestReusablePlugItems(e.randomizedPlugSetHash);
+                        socket_and_plug_hash_values.push(reusable.plugItemHash);
                     }
+                }   
 
-                    if (plug_set_items.length > 0)
+                if (socket_and_plug_entry.randomizedPlugSetHash !== undefined)
+                {
+                    for (let randomized of socket_and_plug_entry.randomizedPlugSetHash)
                     {
-                        for (let plug of plug_set_items)
-                        {
-                            let p_item = BungieApi.Destiny2.getManifestItemDisplayProperties(plug.plugItemHash);
-                            if (!plug_object_list.some(p_name => (p_name.name === p_item.name)))
-                            {
-                                plug_object_list.push({category: category_name, name: p_item.name, 
-                                    icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${p_item.icon}`});
-                            }
-                        }
+                        socket_and_plug_hash_values.push(randomized.plugItemHash);
                     }
                 }        
             }
-            for (let category of categories)
+            socket_and_plugs.push({
+                categoryHash: category,
+                socketAndPlugHashValues: socket_and_plug_hash_values,
+            });
+        }
+
+        let socket_and_plugs_converted = [];
+        for (let hash of socket_and_plugs)
+        {
+            let category_name = BungieApi.Destiny2.getManifestDestinySocketCategoryDisplayProperties(hash.categoryHash).name;
+            if (category_name !== 'WEAPON PERKS')
             {
-                let category_name = BungieApi.Destiny2.getManifestDestinySocketCategoryDisplayProperties(category.socketCategoryHash).name;
-                let p_objects = [];
-                for (let plug of plug_object_list)
+                continue;
+            }
+            let value_list = [];
+            let dupe_list = [];
+            for (let value of hash.socketAndPlugHashValues)
+            {
+                if (value === 0)
                 {
-                    if (category_name === plug.category)
+                    continue;
+                }
+                let display_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(value);
+                if (!dupe_list.includes(display_properties.name))
+                {
+                    if (value_list.length < 20)
                     {
-                        p_objects.push({plug});
+                        value_list.push({name: display_properties.name, icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${display_properties.icon}`});
+                        dupe_list.push(display_properties.name);
                     }
-                    if (p_objects.length >= 10)
-                    {
-                        sorted_plug_objects.push(category.socketCategoryHash, p_objects);
-                        p_objects = [];
+                    else{
+                        socket_and_plugs_converted.push({categoryHash: category_name, socketAndPlugHashValues: value_list});
+                        value_list = [];
                     }
                 }
-                sorted_plug_objects.push(category.socketCategoryHash, p_objects);
+            }
+            if (value_list.length > 0)
+            {
+                socket_and_plugs_converted.push({categoryHash: category_name, socketAndPlugHashValues: value_list});
             }
         }
+        return socket_and_plugs_converted;
+    }
+
+    getRandomizedPlugSet(hash)
+    {
+        if (hash !== undefined)
+        {
+            return BungieApi.Destiny2.getManifestPlugSetItems(hash);
+        }            
+    }
+
+    getReusablePlugSet(hash)
+    {
+        if (hash !== undefined)
+        {
+            return BungieApi.Destiny2.getManifestPlugSetItems(hash);
+        }     
     }
 }

@@ -222,7 +222,7 @@ class Destiny2{
 		return this.Manifest["en"]["DestinyStatDefinition"][String(hash)]["displayProperties"];
 	}
 
-	getManifestReusablePlugItems(hash)
+	getManifestPlugSetItems(hash)
 	{
 		return this.Manifest["en"]["DestinyPlugSetDefinition"][String(hash)]["reusablePlugItems"];
 	}

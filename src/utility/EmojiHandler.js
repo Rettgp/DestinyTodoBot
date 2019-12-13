@@ -9,9 +9,16 @@ export class EmojiHandler
 
     async CreateCustomEmoji(name,emoji_icon)
     {
+        if ( this.guild.emojis.size > 49 )
+        {
+            return;
+        }
+
         let emoji_name = name.split(' ').join('_').toLowerCase();
         emoji_name = emoji_name.split('-').join('_');
+        console.log(`emoji_name: ${emoji_name}`)
         let new_emoji = await this.CheckAndAdd(`custom_${emoji_name}`, emoji_icon);
+        console.log(`new_emoji: ${new_emoji}`)
         return `<:${new_emoji.name}:${new_emoji.id}>`;
     }
 
@@ -19,12 +26,14 @@ export class EmojiHandler
     {
         if (!this.guild.emojis.find(val => val.name === name))
         {
+            console.log(`need_to_create_emoji`)
             let created_emoji = await this.guild.createEmoji(icon, name);
             this.UpdateEmojiMap(created_emoji);
             return created_emoji
         }
         else
         {
+            console.log(`already_exiting_emoji`)
             let exiting_emoji = this.guild.emojis.find(val => val.name === name);
             this.UpdateEmojiMap(exiting_emoji);
             return exiting_emoji;
@@ -33,8 +42,10 @@ export class EmojiHandler
 
     UpdateEmojiMap(new_emoji)
     {
+        console.log(`updating emoji map`);
         if (s_custom_emojis.size === 0)
         {
+            console.log(`sync emoji map to guild emojis.. count: ${this.guild.emojis.size}`);
             let emoji_list = this.guild.emojis.map(e=>e);
             for (var emoji of emoji_list)
             {
@@ -50,6 +61,7 @@ export class EmojiHandler
 
         if (!s_custom_emojis.has(new_emoji.id))
         {
+            console.log(`emoji map doesnt contain ${new_emoji.id}, adding`);
             s_custom_emojis.set(new_emoji.id, {
                 value: new_emoji,
                 last_updated: Date.now()
@@ -57,6 +69,7 @@ export class EmojiHandler
             return;
         }
 
+        console.log(`emoji map contains ${new_emoji.id}, update last_updated`);
         let custom_emoji = s_custom_emojis.get(new_emoji.id);
         s_custom_emojis.set(new_emoji.id, {
             value: custom_emoji.value,
@@ -70,7 +83,7 @@ export class EmojiHandler
         {
             return;
         }
-
+        console.log(`cleangin up emojis`);
         let custom_emoji_timestamps = [];
         for (let [key, value] of s_custom_emojis)
         {
@@ -89,6 +102,7 @@ export class EmojiHandler
             {
                 return;
             }
+            console.log(`deleting emoji: ${e.id}`);
             await this.guild.deleteEmoji(e.id);
             s_custom_emojis.delete(e.id);
             emoji_count++;

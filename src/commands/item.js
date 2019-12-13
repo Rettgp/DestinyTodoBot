@@ -52,6 +52,28 @@ module.exports = {
         item_message.embed.thumbnail.url = item_info.thumbnail;
         item_message.embed.image.url = item_info.screenshot;
 
+        let emoji_handler = new EmojiHandler(message.guild);
+        if (item_info.socket_plugs !== undefined)
+        {
+            for (let sorted_plug of item_info.socket_plugs)
+            {
+                let socket_value = "";
+                for (let socket of sorted_plug.socketAndPlugHashValues)
+                {
+                    let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
+                    if (new_emoji === undefined)
+                    {
+                        new_emoji = '';
+                    }
+                    socket_value += `${new_emoji} ${socket.name}\n`;
+                }
+                if (socket_value !== "")
+                {
+                    item_message.embed.fields.push({name: `${sorted_plug.categoryHash}`, value: socket_value, inline: 'true'});
+                }
+            }
+        }
+
         if (item_info.stats !== undefined)
         {
             let stats = "";
@@ -61,7 +83,7 @@ module.exports = {
             }
             if (stats !== "")
             {
-                item_message.embed.fields.push({name: `Stats`, value: stats, inline: 'true'});
+                item_message.embed.fields.push({name: `STATS`, value: stats, inline: 'true'});
             }
         }
 
@@ -70,27 +92,6 @@ module.exports = {
             for (let step of item_info.steps)
             {
                 item_message.embed.fields.push({name: `Quest Step: ${step.name}`, value: step.description});
-            }
-        }
-
-        let emoji_handler = new EmojiHandler(message.guild);
-        if (item_info.socket_plugs !== undefined)
-        {
-            for (let sorted_plug of Object.keys(item_info.socket_plugs))
-            {
-                console.log(sorted_plug);
-                let socket_value = "";
-                for (let socket of sorted_plug.plug)
-                {
-                    console.log(socket.name, socket.icon);
-                    let new_emoji = await emoji_handler.CreateCustomEmoji(socket.name, socket.icon);
-                    socket_value += `${new_emoji} ${socket.name}\n`;
-                }
-                if (socket_value !== "")
-                {
-                    console.log(socket_value);
-                    item_message.embed.fields.push({name: `${sorted_plug.category}`, value: socket_value, inline: 'true'});
-                }
             }
         }
         
