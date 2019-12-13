@@ -91,6 +91,10 @@ bot.on('error', err =>
     console.warn(err);
 });
 
+bot.on('rateLimitInfo', rateLimitInfo =>
+{
+    console.warn(rateLimitInfo);
+});
 
 // Command Handler
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));

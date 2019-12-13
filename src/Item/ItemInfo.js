@@ -222,7 +222,7 @@ export class Item
                 let display_properties = BungieApi.Destiny2.getManifestItemDisplayProperties(value);
                 if (!dupe_list.includes(display_properties.name))
                 {
-                    if (value_list.length < 20)
+                    if (value_list.length < 16)
                     {
                         value_list.push({name: display_properties.name, icon: `${BungieApi.Destiny2.Endpoints.rootrootPath}${display_properties.icon}`});
                         dupe_list.push(display_properties.name);
